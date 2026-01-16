@@ -18,6 +18,6 @@ if __name__ == '__main__':
     # Load a pretrained YOLO11n model
     model = YOLO(model=config.checkpoint,task="segment")
 
-    results = model.train(data=config.dataset,patience=3, imgsz=640,batch=0.8,device=device,epochs=20000)
+    results = model.train(data=config.dataset,patience=30, imgsz=640,batch=0.8,device=device,epochs=20000)
     
     model.save(config.output)

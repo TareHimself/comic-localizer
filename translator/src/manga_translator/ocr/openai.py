@@ -89,7 +89,6 @@ IMPORTANT:
             
         return results
 
-    @perf_async
     async def extract(self, batch: list[np.ndarray]):
         results = await asyncio.to_thread(self.do_ocr, batch)
         assert len(results) == len(batch), f"batch size was {len(batch)} but result size is {len(results)}"

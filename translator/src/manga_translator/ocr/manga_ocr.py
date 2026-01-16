@@ -53,7 +53,6 @@ class MangaOCR(OCR):
             # should explore using more than just the first element in the future
             return [OcrResult(text=x,language=self.output_language) for x in map(self.post_process,y)]
     
-    @perf_async
     async def extract(self, batch: list[np.ndarray]):
         return await asyncio.to_thread(self.extract_with_model,batch)
 

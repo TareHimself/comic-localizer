@@ -77,7 +77,6 @@ IMPORTANT:
 
         return result
         
-    @perf_async
     async def translate(self, batch: list[OcrResult]):
         if len(batch) == 0:
             return []

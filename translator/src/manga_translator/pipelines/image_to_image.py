@@ -191,14 +191,11 @@ class ImageToImagePipeline(Pipeline):
             # Reduce translation results and ocr_indices to only valid ones
             if len(valid_translation_indices) != len(translation_results):
                 x = [translation_results[i] for i in valid_translation_indices]
-                #y = [valid_ocr_indices[i] for i in valid_translation_indices]
                 translation_results = x
-                #valid_ocr_indices = y
                 resize_sections = True
             
             if len(valid_translation_indices) > 0:
 
-                # reduce the sections to valid ones
                 if resize_sections:
                     x = [sections[valid_ocr_indices[i]] for i in valid_translation_indices]
                     sections = x

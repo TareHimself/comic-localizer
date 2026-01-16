@@ -120,7 +120,7 @@ class HorizontalDrawer(Drawer):
             )
 
         return pil_to_cv2(as_pil),ensure_gray(pil_to_cv2(as_pil_mask))
-    @perf_async
+
     async def draw(
         self, frames: list[np.ndarray], translations: list[TranslatorResult],colors: list[ColorDetectionResult]
     ) -> list[np.ndarray]:
@@ -159,6 +159,12 @@ class HorizontalDrawer(Drawer):
                 name="Line Spacing",
                 description="Space between lines",
                 default=2,
+            ),
+            IntPluginArgument(
+                id="margin",
+                name="Margin",
+                description="",
+                default=3,
             ),
         ]
 
