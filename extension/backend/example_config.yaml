@@ -31,3 +31,6 @@ pipeline:
     args:
       model_path: ./resources/lama_cleaning.pt
       device: cuda
+address: http://127.0.0.1:9000
+# keys:
+#   - your key here
