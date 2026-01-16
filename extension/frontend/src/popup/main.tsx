@@ -8,9 +8,9 @@ import App from "./App.tsx";
 import { MantineProvider } from "@mantine/core";
 
 createRoot(document.getElementById("root")!).render(
-  <StrictMode>
-    <MantineProvider defaultColorScheme="dark">
-      <App />
-    </MantineProvider>
-  </StrictMode>
+    <StrictMode>
+        <MantineProvider defaultColorScheme="dark">
+            <App />
+        </MantineProvider>
+    </StrictMode>,
 );

@@ -1,69 +1,78 @@
 import type { SerializedImage } from "../../shared/types";
 import { SourceTags } from "./SourceTags";
 import type { ISource } from "./types";
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from "uuid";
 
 /**
  * Regular images
  */
 export class ImageSource implements ISource {
-    source: HTMLImageElement
-    id: string
+    source: HTMLImageElement;
+    id: string;
     constructor(source: HTMLImageElement) {
-        this.source = source
-        this.id = this.source.getAttribute(SourceTags.Id) ?? uuidv4()
-        this.source.setAttribute(SourceTags.Id, this.id)
-        this.source.setAttribute(SourceTags.OriginalSrc, this.getInitialSrc())
+        this.source = source;
+        this.id = this.source.getAttribute(SourceTags.Id) ?? uuidv4();
+        this.source.setAttribute(SourceTags.Id, this.id);
+        this.source.setAttribute(SourceTags.OriginalSrc, this.getInitialSrc());
     }
     getInitialSrc() {
-        return this.source.src
+        return this.source.src;
     }
 
     updateSrc(src: string) {
-        this.source.src = src
+        this.source.src = src;
     }
     getId(): string {
-        return this.id
+        return this.id;
     }
     getImageInfo(): SerializedImage {
-
         return {
-            url: this.source.getAttribute(SourceTags.OriginalSrc) ?? this.getInitialSrc(),
+            url:
+                this.source.getAttribute(SourceTags.OriginalSrc) ??
+                this.getInitialSrc(),
             id: this.id,
             headers: {
                 referer: window.location.origin,
-                "User-Agent": navigator.userAgent
-            }
-        }
+                "User-Agent": navigator.userAgent,
+            },
+        };
     }
     hasTranslation(): boolean {
-        return this.source.hasAttribute(SourceTags.TranslatedSrc)
+        return this.source.hasAttribute(SourceTags.TranslatedSrc);
     }
     isShowingTranslation(): boolean {
-        return this.source.hasAttribute(SourceTags.TranslationVisible)
+        return this.source.hasAttribute(SourceTags.TranslationVisible);
     }
     toggleTranslationVisible() {
         if (this.hasTranslation()) {
             if (this.isShowingTranslation()) {
-                this.updateSrc(this.source.getAttribute(SourceTags.OriginalSrc) ?? "")
-                this.source.toggleAttribute(SourceTags.TranslationVisible, false)
-            }
-            else {
-                this.updateSrc(this.source.getAttribute(SourceTags.TranslatedSrc) ?? "")
-                this.source.toggleAttribute(SourceTags.TranslationVisible, true)
+                this.updateSrc(
+                    this.source.getAttribute(SourceTags.OriginalSrc) ?? "",
+                );
+                this.source.toggleAttribute(
+                    SourceTags.TranslationVisible,
+                    false,
+                );
+            } else {
+                this.updateSrc(
+                    this.source.getAttribute(SourceTags.TranslatedSrc) ?? "",
+                );
+                this.source.toggleAttribute(
+                    SourceTags.TranslationVisible,
+                    true,
+                );
             }
         }
     }
     onTranslationCompleted(url: string) {
-        this.source.setAttribute(SourceTags.TranslatedSrc, url)
-        this.toggleTranslationVisible()
-        this.source.toggleAttribute(SourceTags.PendingTranslation, false)
+        this.source.setAttribute(SourceTags.TranslatedSrc, url);
+        this.toggleTranslationVisible();
+        this.source.toggleAttribute(SourceTags.PendingTranslation, false);
     }
     onTranslationFailed() {
-        this.source.toggleAttribute(SourceTags.PendingTranslation, false)
+        this.source.toggleAttribute(SourceTags.PendingTranslation, false);
     }
     onTranslationStarted() {
-        this.source.toggleAttribute(SourceTags.PendingTranslation, true)
+        this.source.toggleAttribute(SourceTags.PendingTranslation, true);
     }
 }
-

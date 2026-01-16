@@ -312,6 +312,7 @@ source = { virtual = "." }
 dependencies = [
     { name = "blacksheep" },
     { name = "manga-translator" },
+    { name = "opencv-python" },
     { name = "poethepoet" },
     { name = "uvicorn" },
 ]
@@ -320,6 +321,7 @@ dependencies = [
 requires-dist = [
     { name = "blacksheep", specifier = ">=2.4.5" },
     { name = "manga-translator", editable = "../../translator" },
+    { name = "opencv-python", specifier = ">=4.11.0.86" },
     { name = "poethepoet", specifier = ">=0.39.0" },
     { name = "uvicorn", specifier = ">=0.40.0" },
 ]

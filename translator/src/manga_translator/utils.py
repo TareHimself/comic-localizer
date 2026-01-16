@@ -15,18 +15,43 @@ import functools
 T = TypeVar("T")
 R = TypeVar("R")
 
+__perf_enabled = False
 
-def perf_async(fn) -> Callable[T, Awaitable[R]]:
-    label = fn.__qualname__
-    async def wrapper(*args, **kwargs) -> R:
-        start = time.perf_counter()
-        try:
-            return await fn(*args, **kwargs)
-        finally:
-            elapsed = time.perf_counter() - start
-            print(f"{label} took {elapsed:.6f}s")
-    return wrapper
+def perf_async(maybe_original_function = None,name_override: Optional[str] = None) -> Callable[T, Awaitable[R]]:
 
+    def _decorate(function):
+        func_name =  name_override or function.__name__
+        @functools.wraps(function)
+        async def do_perf(*args, **kwargs):
+            if __perf_enabled:
+                label = ""
+                if "." in function.__qualname__:
+                    label = f"{args[0].__class__.__name__}.{func_name}"
+                else:
+                    label = func_name
+
+                start = time.perf_counter()
+                try:
+                    return await function(*args, **kwargs)
+                finally:
+                    elapsed = time.perf_counter() - start
+                    print(f"{label} took {elapsed:.6f}s")
+            else:
+                return await function(*args, **kwargs)
+        return do_perf
+    
+    if maybe_original_function is not None:
+        return _decorate(maybe_original_function)
+                
+    return _decorate
+
+def disable_async_perf():
+    global __perf_enabled
+    __perf_enabled = False
+
+def enable_async_perf():
+    global __perf_enabled
+    __perf_enabled = True
 #     task_thread = threading.Thread(group=None, daemon=True, target=run)
 #     task_thread.start()
 #     return await task
@@ -366,8 +391,12 @@ def compute_draw_bbox(section: np.ndarray) -> Vector4i:
     if len(contours) == 0:
         return np.array([0,0,width,height],dtype=np.int32)
 
-    largest_contour = max(contours, key=cv2.contourArea)
-    polygon = np.array([largest_contour[:, 0, :]])
+    largest_contour = max(contours, key=cv2.contourArea)[:, 0, :]
+
+    if len(largest_contour) < 2:
+        return np.array([0,0,width,height],dtype=np.int32)
+    
+    polygon = np.array([largest_contour],dtype=np.int32)
 
     # cv2.imshow("foo",cv2.fillPoly(section.copy(),largest_contour,(255,0,0,255)))
     # cv2.waitKey(0)

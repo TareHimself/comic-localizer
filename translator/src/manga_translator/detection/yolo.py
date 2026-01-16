@@ -5,16 +5,18 @@ import asyncio
 from manga_translator.utils import get_default_torch_device,perf_async
 
 class YoloDetector(Detector):
-    def __init__(self,model_path: str,device: torch.device = get_default_torch_device()):
+    def __init__(self,model_path: str,device: torch.device = get_default_torch_device(),confidence=0.25,iou=0.3):
         
         super().__init__()
         self.model = YOLO(model=model_path, verbose=False)
         self.device = device
+        self.confidence = confidence
+        self.iou = iou
 
     def predict(self,batch):
         with torch.inference_mode():
-            return self.model.predict(batch,device = self.device, verbose=False)
-    @perf_async
+            return self.model.predict(batch,device = self.device, verbose=False,conf=self.confidence,iou=self.iou)
+        
     async def detect(self, batch):
         with torch.inference_mode():
             results = []

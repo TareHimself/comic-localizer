@@ -29,11 +29,14 @@ def construct_image_to_image_pipeline_from_config(config_path: str) -> ImageToIm
             arg_data = data[arg_name]
             if arg_data["class"] == "Default":
                 continue
-
-            arg_args = arg_data["args"]
-            if arg_args is None:
+            
+            if "args" in arg_data:
+                arg_args = arg_data["args"]
+                if arg_args is None:
+                    arg_args = {}
+            else:
                 arg_args = {}
-
+                
             pipeline_args[arg_name] = construct_plugin_by_name(arg_data["class"],arg_args)
         
         return ImageToImagePipeline(**pipeline_args)

@@ -1,17 +1,33 @@
-import browser from "webextension-polyfill"
+import browser from "webextension-polyfill";
 export const enum StorageKeys {
     ServerAddress = "serverAddress",
     BatchSize = "batchSize",
-    BatchTimeout = "batchTimeout"
+    BatchTimeout = "batchTimeout",
+    ApiKey = "apiKey",
 }
 
-export const StorageDefaults = {
-    ServerAddress : "http://127.0.0.1:9000/api/v1",
-    BatchSize : 4,
-    BatchTimeout : 500
+interface IGetStorageOrDefaultsResult {
+    [StorageKeys.ServerAddress]: string;
+    [StorageKeys.BatchSize]: number;
+    [StorageKeys.BatchTimeout]: number;
+    [StorageKeys.ApiKey]: string;
 }
 
-interface IGetStorageOrDefaultsResult { [StorageKeys.ServerAddress]: string, [StorageKeys.BatchSize]: number, [StorageKeys.BatchTimeout]: number }
-export const getStorageOrDefaults = (): Promise<IGetStorageOrDefaultsResult> => {
-    return browser.storage.local.get({ [StorageKeys.ServerAddress]: StorageDefaults.ServerAddress, [StorageKeys.BatchSize]: StorageDefaults.BatchSize, [StorageKeys.BatchTimeout]: StorageDefaults.BatchTimeout }) as unknown as  Promise<IGetStorageOrDefaultsResult>
-}
+export const StorageDefaults: IGetStorageOrDefaultsResult = {
+    [StorageKeys.ServerAddress]: "http://127.0.0.1:9000/api/v1",
+    [StorageKeys.BatchSize]: 4,
+    [StorageKeys.BatchTimeout]: 500,
+    [StorageKeys.ApiKey]: "",
+};
+
+export const getStorageOrDefaults =
+    (): Promise<IGetStorageOrDefaultsResult> => {
+        return browser.storage.local.get({
+            [StorageKeys.ServerAddress]:
+                StorageDefaults[StorageKeys.ServerAddress],
+            [StorageKeys.BatchSize]: StorageDefaults[StorageKeys.BatchSize],
+            [StorageKeys.BatchTimeout]:
+                StorageDefaults[StorageKeys.BatchTimeout],
+            [StorageKeys.ApiKey]: StorageDefaults[StorageKeys.ApiKey],
+        }) as unknown as Promise<IGetStorageOrDefaultsResult>;
+    };

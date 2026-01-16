@@ -1,126 +1,160 @@
-import browser from "webextension-polyfill"
-import { getStorageOrDefaults, StorageDefaults, StorageKeys } from "../shared/storage"
-import type { SerializedImage } from "../shared/types"
+import browser from "webextension-polyfill";
+import {
+    getStorageOrDefaults,
+    StorageDefaults,
+    StorageKeys,
+} from "../shared/storage";
+import { MessageType, type FetchBlobImageMessage, type FetchBlobImageResponse, type SerializedImage } from "../shared/types";
 
 type TranslationJob = {
-    id: string
-    image: Blob
-    resolve: (url: string) => void
-    reject: (val: unknown) => void
-}
+    id: string;
+    image: Blob;
+    resolve: (url: string) => void;
+    reject: (val: unknown) => void;
+};
 
 interface IServerJsonResponse {
-    urls: string[]
+    urls: string[];
 }
 export class Translator {
-
-    pendingJobs: TranslationJob[] = []
-    jobSet: Set<string> = new Set()
-    pendingTranslateTimeout: ReturnType<typeof setTimeout> | undefined = undefined
-    batchSize: number = 4
-    batchTimeout: number = 500
-    serverAddress: string = StorageDefaults.ServerAddress
-    isTranslating: boolean = false
-    constructor() {
-
-    }
-
+    pendingJobs: TranslationJob[] = [];
+    jobSet: Set<string> = new Set();
+    pendingTranslateTimeout: ReturnType<typeof setTimeout> | undefined =
+        undefined;
+    batchSize: number = 4;
+    batchTimeout: number = 500;
+    serverAddress: string = StorageDefaults[StorageKeys.ServerAddress];
+    apiKey: string = StorageDefaults[StorageKeys.ApiKey];
+    isTranslating: boolean = false;
+    constructor() { }
     async translateBatch() {
-        this.isTranslating = true
+        this.isTranslating = true;
         const batch = this.pendingJobs.splice(0, this.batchSize);
-        console.log("translating batch of size", batch.map(c => c.id))
+        console.log(
+            "translating batch of size",
+            batch.map((c) => c.id),
+        );
         try {
-            const formData = new FormData()
+            const formData = new FormData();
             for (const item of batch) {
-                formData.append('file', item.image)
+                formData.append("file", item.image);
             }
-            const response = await fetch(`${this.serverAddress}/translate`,
-                {
-                    method: "POST",
-                    body: formData,
+            const response = await fetch(`${this.serverAddress}/translate`, {
+                method: "POST",
+                body: formData,
+                headers: {
+                    "x-api-key": this.apiKey,
+                },
+            }).then(async (a) => {
+                if (a.status === 500) {
+                    throw new Error(await a.text());
                 }
-            )
-                .then(async (a) => {
-                    if (a.status === 500) {
-                        throw new Error(await a.text())
-                    }
 
-                    return a.json() as Promise<IServerJsonResponse>
-                });
+                return a.json() as Promise<IServerJsonResponse>;
+            });
 
             for (let i = 0; i < batch.length; i++) {
-                batch[i].resolve(response.urls[i])
+                batch[i].resolve(response.urls[i]);
             }
         } catch (error) {
             for (const job of batch) {
-                this.jobSet.delete(job.id)
-                job.reject(error)
+                this.jobSet.delete(job.id);
+                job.reject(error);
             }
         }
 
-        setTimeout(this.startTranslateTimeout.bind(this), 0)
-        this.isTranslating = false
+        setTimeout(this.startTranslateTimeout.bind(this), 0);
+        this.isTranslating = false;
     }
 
     startTranslateTimeout() {
         if (this.isTranslating) {
-            return
+            return;
         }
 
         if (this.pendingTranslateTimeout !== undefined) {
-            clearTimeout(this.pendingTranslateTimeout)
-            this.pendingTranslateTimeout = undefined
+            clearTimeout(this.pendingTranslateTimeout);
+            this.pendingTranslateTimeout = undefined;
         }
 
-        if (this.pendingJobs.length > 0 && this.pendingJobs.length < this.batchSize) {
+        if (
+            this.pendingJobs.length > 0 &&
+            this.pendingJobs.length < this.batchSize
+        ) {
             // Try waiting for more
-            this.pendingTranslateTimeout = setTimeout(this.translateBatch.bind(this), this.batchTimeout)
-            console.log(`waiting full batch ${this.pendingJobs.length}/${this.batchSize}`)
-        }
-        else if (this.pendingJobs.length > 0) {
+            this.pendingTranslateTimeout = setTimeout(
+                this.translateBatch.bind(this),
+                this.batchTimeout,
+            );
+            console.log(
+                `waiting full batch ${this.pendingJobs.length}/${this.batchSize}`,
+            );
+        } else if (this.pendingJobs.length > 0) {
             // Translate batch
-            this.translateBatch()
+            this.translateBatch();
         }
     }
 
     enqueued(id: string): boolean {
-        return this.jobSet.has(id)
+        return this.jobSet.has(id);
     }
 
-    async getImage(data: SerializedImage) {
-        let result = await fetch(data.url, {
-            headers: data.headers
-        }
-        ).then(c => c.blob()).catch((e) => {
-            console.error(`Failed to fetch image with id:${data.id}`)
-            console.error(e)
-            throw new Error(`Failed to fetch image with id:${data.id}`)
-        })
+    async getImage(tabId: number, data: SerializedImage) {
 
-        if (!result.type.startsWith("image") && !data.url.startsWith("data")) {
+        let src = data.url
+
+        if (data.url.startsWith("blob:")) {
+            const message: FetchBlobImageMessage = {
+                type: MessageType.FetchBlobImage,
+                args: [data.url]
+            }
+            const response: FetchBlobImageResponse = await browser.tabs.sendMessage(tabId, message);
+            if (response.error) {
+                console.error(response.error);
+                throw new Error(`Failed to fetch image with id:${data.id}`);
+            }
+
+            src = response.response
+        }
+
+        let result = await fetch(src, {
+            headers: data.headers,
+        })
+            .then((c) => c.blob())
+            .catch((e) => {
+                console.error(`Failed to fetch image with id:${data.id}`);
+                console.error(e);
+                throw new Error(`Failed to fetch image with id:${data.id}`);
+            });
+
+        if (!result.type.startsWith("image") && !src.startsWith("data")) {
             // If the regular fetch failed try using the proxy
             result = await fetch(`${this.serverAddress}/get-image`, {
                 method: "POST",
                 body: JSON.stringify({
-                    url: data.url,
-                    headers: data.headers
+                    url: src,
+                    headers: data.headers,
                 }),
                 headers: {
-                    "Content-Type": "application/json"
-                }
-            }).then(async c => {
-                const asBlob = await c.blob();
-                if (!asBlob.type.startsWith("image")) {
-                    throw new Error(`expected image from ${data.url} but got ${asBlob.type}`)
-                }
-                return asBlob
-            }).catch((e) => {
-                console.error(`Failed to fetch image with id:${data.id}`)
-                console.error(e)
-                throw new Error(`Failed to fetch image with id:${data.id}`)
+                    "Content-Type": "application/json",
+                },
             })
+                .then(async (c) => {
+                    const asBlob = await c.blob();
+                    if (!asBlob.type.startsWith("image")) {
+                        throw new Error(
+                            `expected image from ${src} but got ${asBlob.type}`,
+                        );
+                    }
+                    return asBlob;
+                })
+                .catch((e) => {
+                    console.error(`Failed to fetch image with id:${data.id}`);
+                    console.error(e);
+                    throw new Error(`Failed to fetch image with id:${data.id}`);
+                });
         }
-        return result
+        return result;
     }
 
     // async enqueue(data: SerializedImage): Promise<string> {
@@ -145,12 +179,14 @@ export class Translator {
     //     })
     // }
 
-    async enqueue(data: SerializedImage[]): Promise<Promise<string>[]> {
+    async enqueue(tabId: number, data: SerializedImage[]): Promise<Promise<string>[]> {
         for (const item of data) {
-            this.jobSet.add(item.id)
+            this.jobSet.add(item.id);
         }
 
-        const results = await Promise.allSettled(data.map(c => this.getImage(c)))
+        const results = await Promise.allSettled(
+            data.map((c) => this.getImage(tabId, c)),
+        );
 
         // if (image === undefined) {
         //     this.jobSet.delete(data.id)
@@ -160,46 +196,61 @@ export class Translator {
         return results.map((c, idx) => {
             return new Promise((res, rej) => {
                 if (c.status === "rejected") {
-                    rej(c.reason)
-                }
-                else {
+                    rej(c.reason);
+                } else {
                     const job: TranslationJob = {
                         id: data[idx].id,
                         image: c.value,
                         resolve: res,
-                        reject: rej
-                    }
+                        reject: rej,
+                    };
 
-                    this.pendingJobs.push(job)
-                    this.startTranslateTimeout()
+                    this.pendingJobs.push(job);
+                    this.startTranslateTimeout();
                 }
-            })
-        })
+            });
+        });
     }
 
     onStorageChanged(changes: browser.Storage.StorageAreaOnChangedChangesType) {
-        const serverAddress = changes[StorageKeys.ServerAddress]?.newValue as string | undefined
-        const batchSize = changes[StorageKeys.BatchSize]?.newValue as number | undefined
-        const batchTimeout = changes[StorageKeys.BatchTimeout]?.newValue as number | undefined
+        const serverAddress = changes[StorageKeys.ServerAddress]?.newValue as
+            | string
+            | undefined;
+        const batchSize = changes[StorageKeys.BatchSize]?.newValue as
+            | number
+            | undefined;
+        const batchTimeout = changes[StorageKeys.BatchTimeout]?.newValue as
+            | number
+            | undefined;
+        const apiKey = changes[StorageKeys.ApiKey]?.newValue as
+            | string
+            | undefined;
 
         if (serverAddress !== undefined) {
-            this.serverAddress = serverAddress
+            this.serverAddress = serverAddress;
         }
 
         if (batchSize !== undefined) {
-            this.batchSize = batchSize
+            this.batchSize = batchSize;
         }
 
         if (batchTimeout !== undefined) {
-            this.batchTimeout = batchTimeout
+            this.batchTimeout = batchTimeout;
+        }
+
+        if (apiKey !== undefined) {
+            this.apiKey = apiKey;
         }
     }
 
     async init() {
-        const result = await getStorageOrDefaults()
-        this.serverAddress = result[StorageKeys.ServerAddress]
-        this.batchSize = result[StorageKeys.BatchSize]
-        this.batchTimeout = result[StorageKeys.BatchTimeout]
-        browser.storage.local.onChanged.addListener(this.onStorageChanged.bind(this))
+        const result = await getStorageOrDefaults();
+        this.serverAddress = result[StorageKeys.ServerAddress];
+        this.batchSize = result[StorageKeys.BatchSize];
+        this.batchTimeout = result[StorageKeys.BatchTimeout];
+        this.apiKey = result[StorageKeys.ApiKey];
+        browser.storage.local.onChanged.addListener(
+            this.onStorageChanged.bind(this),
+        );
     }
 }

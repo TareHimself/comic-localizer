@@ -17,7 +17,6 @@ class YoloSegmenter(Segmenter):
         with torch.inference_mode():
             return self.model.predict(batch,device = self.device, verbose=False)
     
-    @perf_async
     async def segment(self, batch):
         with torch.inference_mode():
             results = []

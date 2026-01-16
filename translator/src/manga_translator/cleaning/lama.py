@@ -163,7 +163,6 @@ class LamaCleaner(Cleaner):
         return results
 
     # might be a better way to do this since areas that may be clipped by detections are still inpainted
-    @perf_async
     async def clean(
         self,
         frames: list[np.ndarray],

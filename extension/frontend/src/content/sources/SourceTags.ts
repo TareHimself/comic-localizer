@@ -3,5 +3,5 @@ export const enum SourceTags {
     OriginalSrc = "data-manga-translator-original-src",
     TranslatedSrc = "data-manga-translator-translated-src",
     PendingTranslation = "data-manga-translator-translating",
-    TranslationVisible = "data-manga-translator-translation-visible"
+    TranslationVisible = "data-manga-translator-translation-visible",
 }

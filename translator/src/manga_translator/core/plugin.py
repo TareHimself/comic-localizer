@@ -1,7 +1,7 @@
 import numpy as np
 import torch
 from manga_translator.core.typing import Vector4i, Vector2, Vector3u8
-from manga_translator.utils import get_available_pytorch_devices, get_languages, inverse_luminance_color
+from manga_translator.utils import get_available_pytorch_devices, get_languages, inverse_luminance_color,perf_async
 from typing import Any, Type, Optional
 #from translator.utils import run_in_thread_decorator
 
@@ -153,6 +153,7 @@ class OCR(BasePlugin):
     def __init__(self) -> None:
         super().__init__()
 
+    @perf_async(name_override="extract")
     async def __call__(self, batch: list[np.ndarray]) -> list[OcrResult]:
         return await self.extract(batch)
 
@@ -183,9 +184,10 @@ class Translator(BasePlugin):
     def __init__(self) -> None:
         super().__init__()
 
+    @perf_async(name_override="translate")
     async def __call__(self, batch: list[OcrResult]) -> list[TranslatorResult]:
         return await self.translate(batch)
-
+    
     async def translate(self, batch: list[OcrResult]) -> list[TranslatorResult]:
         return [TranslatorResult(x.text) for x in batch]
 
@@ -210,6 +212,7 @@ class ColorDetector(BasePlugin):
     ) -> list[ColorDetectionResult]:
         return [ColorDetectionResult(np.zeros((3),dtype=np.uint8)) for _ in frames]
 
+    @perf_async(name_override="detect_color")
     async def __call__(
         self,
         frames: list[np.ndarray]
@@ -229,6 +232,7 @@ class Drawer(BasePlugin):
     ) -> list[tuple[np.ndarray,np.ndarray]]:
         return [x.copy() for x in frames]
 
+    @perf_async(name_override="draw")
     async def __call__(
         self, 
         frames: list[np.ndarray],
@@ -253,6 +257,7 @@ class Detector(BasePlugin):
     ) -> list[list[DetectionResult]]:
         return [[] for _ in frames]
 
+    @perf_async(name_override="detect")
     async def __call__(
         self,
         frames: list[np.ndarray]
@@ -275,6 +280,7 @@ class Segmenter(BasePlugin):
     ) -> list[list[SegmentationResult]]:
         return [[] for _ in frames]
 
+    @perf_async(name_override="segment")
     async def __call__(
         self,
         frames: list[np.ndarray]
@@ -294,6 +300,7 @@ class Cleaner(BasePlugin):
     ) -> list[np.ndarray]:
         return [frame.copy() for frame in frames]
 
+    @perf_async(name_override="clean")
     async def __call__(
         self,
         frames: list[np.ndarray],

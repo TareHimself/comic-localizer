@@ -2,22 +2,25 @@ import os
 import io
 import cv2
 import asyncio
-from manga_translator.utils import pil_to_cv2
-from manga_translator.utils import get_default_torch_device
+from manga_translator.utils import get_default_torch_device, enable_async_perf
 from manga_translator.get import construct_image_to_image_pipeline_from_config
 import traceback
 import os
 import hashlib
-from blacksheep import Application, Content, FromFiles, Request, Response, file, get, post, ContentDispositionType, json, bad_request
+from blacksheep.server.authentication.apikey import APIKey, APIKeyAuthentication
+from blacksheep import Application, Content, FromFiles, Request, Response, auth, file, get, post, ContentDispositionType, json, bad_request
 from blacksheep.client import ClientSession
+from essentials.secrets import Secret
 import numpy as np
+import yaml
 
+enable_async_perf()
 print("Using pytorch device",get_default_torch_device())
 default_component = {"id": 0, "args": {}}
 APP_PORT = 9000
 TRANSLATED_IMAGES_PATH = os.path.abspath(os.path.join(".",".temp", "translated"))
 CONFIG_PATH = os.path.abspath(os.path.join(".","config.yaml"))
-PUBLIC_SERVER_ADDRESS = os.environ.get("PUBLIC_SERVER_ADDRESS", f"http://10.0.0.107:{APP_PORT}")#f"http://127.0.0.1:{APP_PORT}")
+PUBLIC_SERVER_ADDRESS = f"http://127.0.0.1:{APP_PORT}"
 pipeline = construct_image_to_image_pipeline_from_config(config_path=CONFIG_PATH)
 os.makedirs(TRANSLATED_IMAGES_PATH, exist_ok=True)
 
@@ -33,6 +36,33 @@ app.use_cors(
     max_age=300,
 )
 
+
+with open(CONFIG_PATH,'rb') as _config_file:
+    API_KEYS_KEY = "keys"
+    SERVER_ADDRESS_KEY = "address"
+    data = yaml.safe_load(_config_file)
+    if API_KEYS_KEY in data and data[API_KEYS_KEY] is not None:
+        keys = data[API_KEYS_KEY]
+
+        auth_strategy = app.use_authentication()
+        
+        for key in keys:
+            auth_strategy.add(
+                APIKeyAuthentication(
+                    APIKey(
+                        secret=Secret.from_plain_text(key)
+                    ),
+                    param_name="X-API-Key",
+                )
+            )
+
+        app.use_authorization()
+
+    if SERVER_ADDRESS_KEY in data and isinstance(data[SERVER_ADDRESS_KEY],str):
+        PUBLIC_SERVER_ADDRESS = data[SERVER_ADDRESS_KEY]
+
+
+
 # I cant figure out how to send requests these requests from the extension
 @post("/api/v1/get-image")
 async def fetch_image(request: Request):
@@ -47,7 +77,8 @@ async def fetch_image(request: Request):
         for header in proxy_response.headers.keys():
             if header.lower() in (b"content-length", b"transfer-encoding"):
                 continue
-            resp.headers.add(header,proxy_response.headers.get_single(header))
+            for h in proxy_response.headers.get(header):
+                resp.headers.add(header,h)
         
         return resp
     
@@ -65,6 +96,7 @@ def save_translated(file_path: str,data: np.ndarray):
 def make_translated_url(key):
     return f"{PUBLIC_SERVER_ADDRESS}/api/v1/translated/{key}.png"
 
+@auth()
 @post("/api/v1/translate")
 async def translate_images(files: FromFiles):
     try:

@@ -11,7 +11,6 @@ COPY translator/uv.lock translator/uv.lock
 COPY extension/backend/resources extension/backend/resources
 COPY extension/backend/config.yaml extension/backend/config.yaml
 COPY extension/backend/src extension/backend/src
-COPY extension/backend/.env extension/backend/.env
 COPY extension/backend/main.py extension/backend/main.py
 COPY extension/backend/.python-version extension/backend/.python-version
 COPY extension/backend/pyproject.toml extension/backend/pyproject.toml
