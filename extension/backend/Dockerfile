@@ -4,6 +4,7 @@ ENV DEBIAN_FRONTEND=noninteractive \
     UV_LINK_MODE=copy \
     UV_COMPILE_BYTECODE=1 \
     UV_PROJECT_ENVIRONMENT=/app/.venv \
+    UV_NO_CACHE=1 \
     PATH="/root/.local/bin:/app/.venv/bin:$PATH"
 
 WORKDIR /app

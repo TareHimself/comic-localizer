@@ -24,6 +24,7 @@ from blacksheep.client import ClientSession
 from essentials.secrets import Secret
 import numpy as np
 import yaml
+import base64
 
 enable_perf()
 print("Using pytorch device", get_default_torch_device())
@@ -48,9 +49,14 @@ app.use_cors(
 )
 
 
+CACHE_ENABLED = True
+BASE_64_ENABLED = False
+
 with open(CONFIG_PATH, "rb") as _config_file:
     API_KEYS_KEY = "keys"
     SERVER_ADDRESS_KEY = "address"
+    CACHE_KEY = "cache"
+    BASE_64_KEY = "b64"
     data = yaml.safe_load(_config_file)
     if API_KEYS_KEY in data and data[API_KEYS_KEY] is not None:
         keys = data[API_KEYS_KEY]
@@ -69,6 +75,15 @@ with open(CONFIG_PATH, "rb") as _config_file:
 
     if SERVER_ADDRESS_KEY in data and isinstance(data[SERVER_ADDRESS_KEY], str):
         PUBLIC_SERVER_ADDRESS = data[SERVER_ADDRESS_KEY]
+
+    if CACHE_KEY in data and isinstance(data[CACHE_KEY], bool):
+        CACHE_ENABLED = data[CACHE_KEY]
+
+    if BASE_64_KEY in data and isinstance(data[BASE_64_KEY], bool):
+        BASE_64_ENABLED = data[BASE_64_KEY]
+
+if not CACHE_ENABLED:
+    BASE_64_ENABLED = True
 
 
 # I cant figure out how to send requests these requests from the extension
@@ -104,6 +119,31 @@ def bytes_to_mat(data: bytes):
     return cv2.imdecode(array, cv2.IMREAD_COLOR_BGR)
 
 
+def post_translation(key: str, data: np.ndarray) -> str:
+    if CACHE_ENABLED:
+        save_path = os.path.join(TRANSLATED_IMAGES_PATH, f"{key}.png")
+        cv2.imwrite(save_path, data)
+
+    if BASE_64_ENABLED:
+        ok, encoded = cv2.imencode(".png", data)
+        if not ok:
+            raise ValueError("Failed to encode translated image")
+        return "data:image/png;base64," + base64.b64encode(encoded.tobytes()).decode(
+            "ascii"
+        )
+    else:
+        return make_translated_url(key)
+
+
+def get_cached(key: str) -> str:
+    cached_path = os.path.join(TRANSLATED_IMAGES_PATH, f"{key}.png")
+    if BASE_64_ENABLED:
+        with open(cached_path, "rb") as f:
+            return "data:image/png;base64," + base64.b64encode(f.read()).decode("ascii")
+    else:
+        return make_translated_url(key)
+
+
 def save_translated(file_path: str, data: np.ndarray):
     cv2.imwrite(file_path, data)
 
@@ -125,25 +165,40 @@ async def translate_images(files: FromFiles):
             *[asyncio.to_thread(compute_hash, image.data) for image in images]
         )
 
-        file_names = [f"{key}.png" for key in keys]
-        file_paths = [
-            os.path.join(TRANSLATED_IMAGES_PATH, file_name) for file_name in file_names
-        ]
-        files_exist = await asyncio.gather(
-            *[asyncio.to_thread(os.path.exists, file_path) for file_path in file_paths]
-        )
+        if CACHE_ENABLED:
+            file_names = [f"{key}.png" for key in keys]
+            file_paths = [
+                os.path.join(TRANSLATED_IMAGES_PATH, file_name)
+                for file_name in file_names
+            ]
+            files_exist = await asyncio.gather(
+                *[
+                    asyncio.to_thread(os.path.exists, file_path)
+                    for file_path in file_paths
+                ]
+            )
 
-        to_translate_indices = [
-            i for i in range(len(files_exist)) if not files_exist[i]
-        ]
+            to_translate_indices = [
+                i for i in range(len(files_exist)) if not files_exist[i]
+            ]
 
-        loop = asyncio.get_running_loop()
+            loop = asyncio.get_running_loop()
 
-        results: list[asyncio.Future] = [loop.create_future() for _ in keys]
+            results: list[asyncio.Future] = [
+                asyncio.to_thread(get_cached, key)
+                if files_exist[i]
+                else loop.create_future()
+                for i, key in enumerate(keys)
+            ]
+        else:
+            loop = asyncio.get_running_loop()
 
-        for i in range(len(files_exist)):
-            if files_exist[i]:
-                results[i].set_result(make_translated_url(keys[i]))
+            to_translate_indices: list[int] = []
+            results: list[asyncio.Future] = []
+
+            for i, key in enumerate(keys):
+                to_translate_indices.append(i)
+                results.append(loop.create_future())
 
         if to_translate_indices:
             translation_jobs: list[tuple[int, str, bytes, asyncio.Future]] = []
@@ -169,17 +224,17 @@ async def translate_images(files: FromFiles):
 
                     translated_batch = await pipeline(batch)
 
-                    await asyncio.gather(
+                    translations = await asyncio.gather(
                         *[
-                            asyncio.to_thread(
-                                save_translated, file_paths[info[0]], result
-                            )
+                            asyncio.to_thread(post_translation, info[1], result)
                             for info, result in zip(translation_jobs, translated_batch)
                         ]
                     )
+
                     async with lock:
-                        for _, key, _, pending in translation_jobs:
-                            pending.set_result(make_translated_url(key))
+                        for i, job in enumerate(translation_jobs):
+                            _, key, _, pending = job
+                            pending.set_result(translations[i])
                             PENDING_TRANSLATION_JOBS.pop(key)
                 except Exception as e:
                     async with lock:

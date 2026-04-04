@@ -36,5 +36,9 @@ cmd  = "uvicorn main:app --reload --host 0.0.0.0 --port 9000"
 
 [tool.poe.tasks.docker-build]
 help = "build the docker image"
-cmd  = "docker build -f extension/backend/Dockerfile . -t tarehimself/manga-translator-extension"
+cmd  = "docker build -f extension/backend/Dockerfile . -t tarehimself/manga-translator-server"
 cwd = "../../"
+
+[tool.poe.tasks.docker-run]
+help = "run the built docker image on port 9000"
+cmd = "docker run --gpus all -p 9000:9000 manga-translator-backend"
