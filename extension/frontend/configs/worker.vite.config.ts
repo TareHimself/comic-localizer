@@ -1,7 +1,10 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import { getBrowserTarget, getTargetOutDir } from "./buildTarget";
 
 // https://vite.dev/config/
+const target = getBrowserTarget();
+
 export default defineConfig({
     plugins: [
         react({
@@ -13,7 +16,8 @@ export default defineConfig({
     build: {
         minify: false,
         sourcemap: true,
-        emptyOutDir: false,
+        emptyOutDir: true,
+        outDir: getTargetOutDir(target),
         rollupOptions: {
             input: {
                 worker: "src/worker/worker.ts",

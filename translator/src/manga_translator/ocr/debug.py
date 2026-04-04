@@ -1,6 +1,6 @@
 import numpy as np
 from manga_translator.core.plugin import (
-    LanguagePluginSelectArgument,
+    LanguageStringArgument,
     OCR,
     OcrResult,
     StringPluginArgument,
@@ -11,13 +11,13 @@ from manga_translator.core.plugin import (
 class DebugOCR(OCR):
     """Outputs the specified text"""
 
-    def __init__(self, text="",language = 'en') -> None:
+    def __init__(self, text="", language="en") -> None:
         super().__init__()
         self.to_write = text
         self.language = language
 
     async def extract(self, batch: list[np.ndarray]):
-        return [OcrResult(text=self.to_write,language=self.to_write) for x in batch]
+        return [OcrResult(text=self.to_write, language=self.language) for _ in batch]
 
     @staticmethod
     def get_name() -> str:
@@ -29,10 +29,9 @@ class DebugOCR(OCR):
             StringPluginArgument(
                 id="text", name="Debug Text", description="What to output"
             ),
-            LanguagePluginSelectArgument(
+            LanguageStringArgument(
                 id="language",
                 name="Output Language",
                 description="The language the output text is",
-                default="en"
-            )
+            ),
         ]

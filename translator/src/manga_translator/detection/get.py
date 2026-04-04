@@ -11,4 +11,3 @@ _detection_data = list(
 
 def get_detectors() -> list[Detector]:
     return _detection_data
-    

@@ -55,6 +55,7 @@ export class Translator {
 
             for (let i = 0; i < batch.length; i++) {
                 batch[i].resolve(response.urls[i]);
+                this.jobSet.delete(batch[i].id)
             }
         } catch (error) {
             for (const job of batch) {
@@ -157,41 +158,15 @@ export class Translator {
         return result;
     }
 
-    // async enqueue(data: SerializedImage): Promise<string> {
-    //     this.jobSet.add(data.id)
-    //     const image = await this.getImage(data)
-
-    //     if (image === undefined) {
-    //         this.jobSet.delete(data.id)
-    //         throw new Error("could not get image")
-    //     }
-
-    //     return new Promise((res, rej) => {
-    //         const job: TranslationJob = {
-    //             id: data.id,
-    //             image: image,
-    //             resolve: res,
-    //             reject: rej
-    //         }
-
-    //         this.pendingJobs.push(job)
-    //         this.startTranslateTimeout()
-    //     })
-    // }
-
     async enqueue(tabId: number, data: SerializedImage[]): Promise<Promise<string>[]> {
         for (const item of data) {
             this.jobSet.add(item.id);
         }
 
+        // try load all images and maintain order
         const results = await Promise.allSettled(
             data.map((c) => this.getImage(tabId, c)),
         );
-
-        // if (image === undefined) {
-        //     this.jobSet.delete(data.id)
-        //     throw new Error("could not get image")
-        // }
 
         return results.map((c, idx) => {
             return new Promise((res, rej) => {
@@ -244,6 +219,7 @@ export class Translator {
     }
 
     async init() {
+        console.log("Initializing translator")
         const result = await getStorageOrDefaults();
         this.serverAddress = result[StorageKeys.ServerAddress];
         this.batchSize = result[StorageKeys.BatchSize];
@@ -252,5 +228,6 @@ export class Translator {
         browser.storage.local.onChanged.addListener(
             this.onStorageChanged.bind(this),
         );
+        console.log("Initialized translator")
     }
 }

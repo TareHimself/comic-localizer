@@ -15,7 +15,6 @@ const CONTEXT_MENU_TRANSLATE_OR_RESTORE_ID =
     "manga-translator/context/translate_or_restore";
 //const CONTEXT_MENU_TRANSLATE_ALL = "manga-translator/context/translate_all"
 const CONTEXT_MENU_INSPECT = "manga-translator/context/inspect";
-const PENDING_TRANSLATIONS = new Set<string>();
 const TRANSLATOR = new Translator();
 
 const sendTranslationStartedMessage = async (
@@ -89,7 +88,6 @@ browser.contextMenus.onClicked.addListener(async (info, tab) => {
                         console.error("Failed to translate");
                         console.error(image);
                         console.error(e);
-                        PENDING_TRANSLATIONS.delete(image.id);
                         sendTranslationFailedMessage(
                             tabId,
                             image.id,
@@ -129,5 +127,6 @@ browser.runtime.onInstalled.addListener(() => {
     //     contexts: ["all"],
     //     id: CONTEXT_MENU_INSPECT
     // })
-    TRANSLATOR.init();
 });
+
+TRANSLATOR.init()

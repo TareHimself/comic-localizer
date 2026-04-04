@@ -1,14 +1,17 @@
 @keyframes load_pending {
     from {
         opacity: 1;
+        filter: blur(0px);
     }
 
     50% {
         opacity: 0.5;
+        filter: blur(4px);
     }
 
     to {
         opacity: 1;
+        filter: blur(0px);
     }
 }
 

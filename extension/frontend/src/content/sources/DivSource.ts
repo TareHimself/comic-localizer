@@ -21,7 +21,6 @@ export class DivSource implements ISource {
                 this.source.style.backgroundImage,
             ),
         );
-        console.log("Div source", this);
     }
 
     backgroundImageCssToResource(backgroundImageCss: string) {

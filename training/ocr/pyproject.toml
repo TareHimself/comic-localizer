@@ -1,0 +1,35 @@
+[project]
+name = "ocr"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "albumentationsx>=2.0.14",
+    "evaluate>=0.4.6",
+    "huggingface-hub[hf-xet]>=0.36.0",
+    "jiwer>=4.0.0",
+    "opencv-python>=4.13.0.90",
+    "optimum>=2.1.0",
+    "sentencepiece>=0.2.1",
+    "simple-parsing>=0.1.8",
+    "torch>=2.10.0",
+    "torchvision>=0.25.0",
+    "transformers[torch]==5.0.0",
+    "wandb>=0.24.0",
+    "weave>=0.52.25",
+]
+
+
+[[tool.uv.index]]
+name = "pytorch-cu128"
+url = "https://download.pytorch.org/whl/cu128"
+explicit = true
+
+[tool.uv.sources]
+torch = [
+  { index = "pytorch-cu128", marker = "sys_platform == 'linux' or sys_platform == 'win32'" },
+]
+torchvision = [
+  { index = "pytorch-cu128", marker = "sys_platform == 'linux' or sys_platform == 'win32'" },
+]

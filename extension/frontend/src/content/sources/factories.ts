@@ -88,6 +88,29 @@ const imageFactory: SourceFactory = (element, existing) => {
     return undefined;
 };
 
+const pixivImageListFactory: SourceFactory = (element, existing) => {
+    if (window.location.origin.includes("pixiv.net") && element instanceof HTMLImageElement) {
+
+        const related: HTMLImageElement[] = []
+        if (element.parentElement?.hasAttribute("data-page")) {
+            related.push(...sortAndInterleave((Array.from(element.parentElement?.parentElement?.parentElement?.querySelectorAll("img") ?? []) as HTMLImageElement[]), element))
+        }
+        return {
+            context: {
+                element,
+                source: existing.get(element) ?? new ImageSource(element),
+            },
+            related: related.map((e) => {
+                return {
+                    element: e,
+                    source: existing.get(e) ?? new ImageSource(e),
+                };
+            }),
+        };
+    }
+    return undefined;
+};
+
 const welomaImageFactory: SourceFactory = (element, existing) => {
     if (
         element instanceof HTMLImageElement &&
@@ -229,11 +252,12 @@ const comicWalkerFactory: SourceFactory = (element, existing) => {
  * Factories that return single sources
  * @returns
  */
-export const getSingleFactories = () => {
+export const getFactories = () => {
     return [
         pictureListFactory,
         xImageFactory,
         welomaImageFactory,
+        pixivImageListFactory,
         imageFactory,
         mangaFireImageFactory,
         canvasFactory,

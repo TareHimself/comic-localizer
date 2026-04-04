@@ -4,7 +4,7 @@ from manga_translator.core.plugin import (
     OcrResult,
     StringPluginArgument,
     PluginArgument,
-    LanguagePluginSelectArgument,
+    LanguageStringArgument,
 )
 
 
@@ -29,10 +29,9 @@ class DebugTranslator(Translator):
             StringPluginArgument(
                 id="text", name="Debug Text", description="What to write"
             ),
-            LanguagePluginSelectArgument(
+            LanguageStringArgument(
                 id="language",
                 name="Output Language",
                 description="The language the output text is",
-                default="en",
             ),
         ]

@@ -1,11 +1,9 @@
-.local
 __pycache__
 *.egg-info
 dist
 build
 out
 *.env
-.local
 .temp
 resources
 config.yaml

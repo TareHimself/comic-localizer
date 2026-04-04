@@ -5,11 +5,19 @@ This is a basic extension example
 ## building
 
 - You need nodejs to build this extension
-- To build the extension run
-
 ```bash
 npm install
-npm run build
+```
+- To build a Chromium package run
+```bash
+npm run build:chromium
+```
+- To build a Firefox package run
+```bash
+npm run build:firefox
 ```
 
-- The extesion will be in (dist)[./dist]
+- Build outputs are written to:
+	- `dist/chromium`
+	- `dist/firefox`
+- Common manifest fields are edited in `public/manifest.json`. Build-time browser-specific fields are added automatically.

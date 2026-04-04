@@ -5,7 +5,9 @@
     "type": "module",
     "scripts": {
         "dev": "vite",
-        "build": "tsc -b && vite build -c configs/worker.vite.config.ts && vite build -c configs/content.vite.config.ts && vite build -c configs/page.vite.config.ts && vite build -c configs/popup.vite.config.ts",
+        "build": "node scripts/build.mjs chromium",
+        "build:chromium": "node scripts/build.mjs chromium",
+        "build:firefox": "node scripts/build.mjs firefox",
         "lint": "eslint .",
         "preview": "vite preview"
     },

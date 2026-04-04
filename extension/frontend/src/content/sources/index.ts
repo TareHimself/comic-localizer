@@ -1,4 +1,4 @@
-import { getSingleFactories } from "./factories";
+import { getFactories } from "./factories";
 import { SourceTags } from "./SourceTags";
 import type { ISource } from "./types";
 
@@ -15,7 +15,7 @@ document.addEventListener("contextmenu", (e) => {
 export const getContextMenuSourceTarget = () => {
     if (targetElement === undefined) return undefined;
 
-    const factories = getSingleFactories();
+    const factories = getFactories();
 
     for (const factory of factories) {
         const result = factory(targetElement, ELEMENTS_TO_SOURCES);
