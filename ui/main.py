@@ -1,33 +1,30 @@
-from typing import Any, Union
-from dotenv import load_dotenv
-import numpy as np
 
-load_dotenv()
+from dotenv import load_dotenv
+
+import numpy as np
 import os
 import io
 import urllib.parse
 import requests
 import cv2
 import asyncio
+import re
+import webbrowser
+import traceback
 from dataclasses import dataclass, field
 from blacksheep import (
     Application,
     Content,
     FormPart,
-    FromFiles,
-    Request,
     Response,
     file,
     get,
     post,
     ContentDispositionType,
     json,
-    bad_request,
-    FromJSON,
     FromForm,
 )
-from blacksheep.client import ClientSession
-from manga_translator.utils import cv2_to_pil, pil_to_cv2
+from manga_translator.utils import pil_to_cv2
 from manga_translator.pipelines.image_to_image import ImageToImagePipeline
 from manga_translator.get import construct_plugin_by_name
 from manga_translator.translation.get import get_translators
@@ -37,12 +34,10 @@ from manga_translator.detection.get import get_detectors
 from manga_translator.segmentation.get import get_segmenters
 from manga_translator.cleaning.get import get_cleaners
 from PIL import Image
-import re
-import webbrowser
-import traceback
-import os
-from operator import itemgetter
 from dataclass_wizard import JSONWizard
+from typing import Any
+
+load_dotenv()
 
 app = Application()
 build_path = os.path.join(os.path.dirname(__file__), "frontend", "dist")
@@ -139,7 +134,7 @@ async def clean(data: FromForm[RequestFormDataclass]):
         result_bytes = await asyncio.to_thread(mat_to_bytes, results[0])
 
         return Response(200, None, Content(b"image/png", result_bytes))
-    except:
+    except:  # noqa: E722
         traceback.print_exc()
         return Response(
             500, None, Content(b"text/html", traceback.format_exc().encode())
@@ -180,7 +175,7 @@ async def translate(data: FromForm[RequestFormDataclass]):
         result_bytes = await asyncio.to_thread(mat_to_bytes, results[0])
 
         return Response(200, None, Content(b"image/png", result_bytes))
-    except:
+    except:  # noqa: E722
         traceback.print_exc()
         return Response(
             500, None, Content(b"text/html", traceback.format_exc().encode())
@@ -272,7 +267,7 @@ async def get_info():
             )
 
         return json(data, 200)
-    except:
+    except:  # noqa: E722
         traceback.print_exc()
         return Response(
             500, None, Content(b"text/html", traceback.format_exc().encode())
@@ -290,4 +285,4 @@ async def get_page():
 
 @app.on_start
 async def on_startup(app: Application):
-    webbrowser.open(f"http://localhost:5000")
+    webbrowser.open("http://localhost:5000")

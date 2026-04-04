@@ -11,6 +11,15 @@ dependencies = [
     "roboflow>=1.2.11",
     "rfdetr>=1.3.0",
     "simple-parsing>=0.1.7",
+    "albumentationsx>=2.0.14",
+    "wandb>=0.24.0",
+    "weave>=0.52.25",
+    "transformers>=4.57.3",
+    "huggingface-hub[hf-xet]>=0.36.0",
+    "sentencepiece>=0.2.1",
+    "evaluate>=0.4.6",
+    "datasets>=4.5.0",
+    "jiwer>=4.0.0",
 ]
 
 

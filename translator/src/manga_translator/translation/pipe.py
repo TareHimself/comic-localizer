@@ -1,8 +1,4 @@
-from manga_translator.core.plugin import (
-    Translator,
-    TranslatorResult,
-    OcrResult
-)
+from manga_translator.core.plugin import Translator, TranslatorResult, OcrResult
 
 
 class PipeTranslator(Translator):
