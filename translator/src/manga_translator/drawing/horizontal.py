@@ -129,7 +129,7 @@ class HorizontalDrawer(Drawer):
         frames: list[np.ndarray],
         translations: list[TranslatorResult],
         colors: list[ColorDetectionResult],
-    ) -> list[np.ndarray]:
+    ) -> list[tuple[np.ndarray, np.ndarray]]:
         return await asyncio.gather(
             *[
                 asyncio.to_thread(self.draw_text, frame, translation, color)
