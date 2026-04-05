@@ -84,7 +84,7 @@ class PatchedAiCleaner(Cleaner):
             working_pixels = 0
             for patch in groups[key]:
                 h, w, _ = patch.patch.shape
-                pixels = h * w * 4 # 3 channels for image, 1 for mask
+                pixels = h * w * 4  # 3 channels for image, 1 for mask
                 if (working_pixels + pixels) > self.max_group_pixels and len(a) > 0:
                     final_groups.append(a)
                     working_pixels = pixels

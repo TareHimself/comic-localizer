@@ -1,5 +1,6 @@
 import numpy as np
 
+from manga_translator.core.constants import DetectionType
 from manga_translator.core.plugin import (
     Detector,
     DetectionResult,
@@ -30,6 +31,16 @@ class YoloDetector(Detector):
         self.iou = iou
         self.skip_free_text = skip_free_text
 
+    @staticmethod
+    def conv_cls(cls: int):
+        if cls == DetectionType.TextInBubble:
+            return DetectionType.TextInBubble
+
+        if cls == DetectionType.TextOnPage:
+            return DetectionType.TextOnPage
+
+        return DetectionType.TextOnPage
+
     def predict(self, batch: list[np.ndarray]):
         with torch.inference_mode():
             results = []
@@ -50,7 +61,11 @@ class YoloDetector(Detector):
                     # depending on model accuracy I have noticed some text bubbles are detected as free text, will need to do custom nms to catch this since we trust text_bubble more than text_free
                     if cls > 0 and self.skip_free_text:
                         continue
-                    result.append(DetectionResult(cls.item(), bbox, conf.item()))
+                    result.append(
+                        DetectionResult(
+                            YoloDetector.conv_cls(cls.item()), bbox, conf.item()
+                        )
+                    )
 
                 results.append(result)
 

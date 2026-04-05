@@ -1,3 +1,4 @@
+from manga_translator.core.constants import SegmentationType
 from manga_translator.core.plugin import (
     PluginArgument,
     PytorchDevicePluginArgument,
@@ -20,6 +21,13 @@ class YoloSegmenter(Segmenter):
         self.model = YOLO(model=model_path, verbose=False)
         self.device = device
 
+    @staticmethod
+    def conv_cls(cls: int):
+        if cls == SegmentationType.Text:
+            return SegmentationType.Text
+
+        return SegmentationType.Text
+
     def predict(self, batch):
         with torch.inference_mode():
             results = []
@@ -40,7 +48,9 @@ class YoloSegmenter(Segmenter):
                     for mask, cls, conf in zip(masks, classes, confidence):
                         result.append(
                             SegmentationResult(
-                                cls.item(), mask.astype(int), conf.item()
+                                YoloSegmenter.conv_cls(cls.item()),
+                                mask.astype(int),
+                                conf.item(),
                             )
                         )
 
