@@ -33,19 +33,16 @@ class YoloDetector(Detector):
 
     @staticmethod
     def conv_cls(cls: int):
-        if cls == DetectionType.TextInBubble:
-            return DetectionType.TextInBubble
-
-        if cls == DetectionType.TextOnPage:
+        try:
+            return DetectionType(cls)
+        except ValueError:
             return DetectionType.TextOnPage
-
-        return DetectionType.TextOnPage
 
     def predict(self, batch: list[np.ndarray]):
         with torch.inference_mode():
             results = []
             for prediction in self.model.predict(
-                # RGB to BGR since model.predic expects BGR
+                # RGB to BGR since model.predict expects BGR
                 batch,  # [x[..., ::-1] for x in batch],
                 device=self.device,
                 verbose=False,

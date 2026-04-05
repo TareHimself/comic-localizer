@@ -23,10 +23,10 @@ class YoloSegmenter(Segmenter):
 
     @staticmethod
     def conv_cls(cls: int):
-        if cls == SegmentationType.Text:
+        try:
+            return SegmentationType(cls)
+        except ValueError:
             return SegmentationType.Text
-
-        return SegmentationType.Text
 
     def predict(self, batch):
         with torch.inference_mode():
