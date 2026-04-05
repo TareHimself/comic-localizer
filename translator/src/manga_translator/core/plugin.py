@@ -263,7 +263,7 @@ class ColorDetector(BasePlugin):
     async def detect_color(
         self, frames: list[np.ndarray]
     ) -> list[ColorDetectionResult]:
-        return [ColorDetectionResult(np.zeros((3), dtype=np.uint8)) for _ in frames]
+        return [ColorDetectionResult(np.zeros((3), dtype=np.uint8),1) for _ in frames]
 
     @perf_async(name_override="detect_color")
     async def __call__(self, frames: list[np.ndarray]) -> list[ColorDetectionResult]:
