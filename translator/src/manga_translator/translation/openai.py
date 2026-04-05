@@ -56,7 +56,13 @@ IMPORTANT:
             i for i in range(len(batch)) if batch[i].language != self.target_lang
         ]
 
-        result = [TranslatorResult(lang_code=self.target_lang) for _ in batch]
+        result = [
+            TranslatorResult(
+                text=batch[i].text if i not in to_translate_indices else "",
+                lang_code=self.target_lang,
+            )
+            for i in range(len(batch))
+        ]
 
         input_str = "\n".join(
             [

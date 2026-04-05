@@ -255,9 +255,15 @@ async def translate_images(files: FromFiles):
 
 @get("/api/v1/translated/{key}")
 async def get_translated_image(key: str):
-    file_path = os.path.join(TRANSLATED_IMAGES_PATH, key)
+    # Reject keys containing path separators or traversal sequences
+    if os.sep in key or (os.altsep and os.altsep in key) or ".." in key or "/" in key:
+        return Response(400)
 
-    if not os.path.isabs(file_path):
+    file_path = os.path.realpath(os.path.join(TRANSLATED_IMAGES_PATH, key))
+    base_path = os.path.realpath(TRANSLATED_IMAGES_PATH)
+
+    # Ensure the resolved path stays within TRANSLATED_IMAGES_PATH
+    if not file_path.startswith(base_path + os.sep) and file_path != base_path:
         return Response(400)
 
     if await asyncio.to_thread(os.path.exists, file_path):
@@ -268,7 +274,7 @@ async def get_translated_image(key: str):
             content_disposition=ContentDispositionType.INLINE,
         )
     else:
-        Response(404)
+        return Response(404)
 
 
 @app.on_start
