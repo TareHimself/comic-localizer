@@ -122,7 +122,7 @@ class LanguageStringArgument(StringPluginArgument):
         id: str,
         name: str,
         description: str,
-        default: str = "English US",
+        default: str = "en-US",
     ) -> None:
         super().__init__(id, name, description, default, self.convert_lang)
 
