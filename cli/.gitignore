@@ -1,4 +1,3 @@
-.local
 __pycache__
 *.egg-info
 dist
