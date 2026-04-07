@@ -16,7 +16,7 @@ function LoadedApp() {
             <TextInput
                 value={serverAddress}
                 placeholder="https://someserver.com/api/v1"
-                label="Server API Addesss"
+                label="Server API Address"
                 onChange={(e) => {
                     setServerAddress(e.target.value);
                 }}

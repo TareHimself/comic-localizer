@@ -71,29 +71,30 @@ IMPORTANT:
             for i in range(len(batch))
         ]
 
-        input_str = "\n".join(
-            [
-                f"({i})[{batch[i].language}]: {batch[i].text}"
-                for i in to_translate_indices
-            ]
-        )
+        if len(to_translate_indices) > 0:
+            input_str = "\n".join(
+                [
+                    f"({i})[{batch[i].language}]: {batch[i].text}"
+                    for i in to_translate_indices
+                ]
+            )
 
-        response = self.openai.responses.parse(
-            model=self.model,
-            reasoning={"effort": "low"},
-            instructions=self.instructions
-            + f"\nYOU MUST OUTPUT {len(to_translate_indices)} results",
-            input=input_str,
-            text_format=_OpenAITranslationResults,
-        )
+            response = self.openai.responses.parse(
+                model=self.model,
+                reasoning={"effort": "low"},
+                instructions=self.instructions
+                + f"\nYOU MUST OUTPUT {len(to_translate_indices)} results",
+                input=input_str,
+                text_format=_OpenAITranslationResults,
+            )
 
-        if response.output_parsed is not None:
-            for translation, i in zip(
-                response.output_parsed.translations, to_translate_indices
-            ):
-                result[i].text = translation
-        else:
-            raise RuntimeError("Openai Translation failed")
+            if response.output_parsed is not None:
+                for translation, i in zip(
+                    response.output_parsed.translations, to_translate_indices
+                ):
+                    result[i].text = translation
+            else:
+                raise RuntimeError("Openai Translation failed")
 
         return result
 

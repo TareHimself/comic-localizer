@@ -171,6 +171,7 @@ export class Translator {
         return results.map((c, idx) => {
             return new Promise((res, rej) => {
                 if (c.status === "rejected") {
+                    this.jobSet.delete(data[idx].id)
                     rej(c.reason);
                 } else {
                     const job: TranslationJob = {
