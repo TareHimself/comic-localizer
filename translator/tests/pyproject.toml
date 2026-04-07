@@ -22,7 +22,7 @@ test = "pytest src/"
 coverage = "uv run coverage run -m pytest"
 
 [tool.uv.sources]
-manga_translator = { path = "..", editable = true }
+manga-translator = { path = "..", editable = true }
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
