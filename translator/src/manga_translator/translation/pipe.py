@@ -8,7 +8,7 @@ class PipeTranslator(Translator):
         super().__init__()
 
     async def translate(self, batch: list[OcrResult]):
-        return [TranslatorResult(a.text, lang_code=a.language) for a in batch]
+        return [TranslatorResult(a.text, language=a.language) for a in batch]
 
     @staticmethod
     def get_name() -> str:

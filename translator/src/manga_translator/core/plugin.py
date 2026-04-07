@@ -3,11 +3,12 @@ import torch
 from manga_translator.core.typing import Vector4i, Vector2, Vector3u8
 from manga_translator.utils import (
     get_available_pytorch_devices,
+    get_default_language,
+    standardize_language_code,
     inverse_luminance_color,
     perf_async,
 )
 from typing import Any, Type, Optional
-import langcodes
 from .constants import DetectionType, SegmentationType
 
 # from translator.utils import run_in_thread_decorator
@@ -122,17 +123,12 @@ class LanguageStringArgument(StringPluginArgument):
         id: str,
         name: str,
         description: str,
-        default: str = "en-US",
+        default: str = get_default_language(),
     ) -> None:
         super().__init__(id, name, description, default, self.convert_lang)
 
     def convert_lang(self, language_text: str) -> str:
-        try:
-            return langcodes.Language.get(language_text).to_tag()
-        except langcodes.LanguageTagError:
-            pass
-
-        return langcodes.Language.find(language_text).to_tag()
+        return standardize_language_code(language_text)
 
 
 class PytorchDevicePluginArgument(SelectPluginArgument):
@@ -187,10 +183,18 @@ class BasePlugin:
 
 
 class OcrResult:
-    def __init__(self, text: str = "", language: str = "en") -> None:
-        self.text = text
+    def __init__(self, text: str = "", language: str = get_default_language()) -> None:
+        self._language = language
         self.language = language
+        self.text = text
+        
+    @property
+    def language(self): 
+        return self._language
 
+    @language.setter
+    def language(self, value):
+        self._language = standardize_language_code(value)
 
 class OCR(BasePlugin):
     """Always outputs \"\""""
@@ -217,9 +221,18 @@ class OCR(BasePlugin):
 
 
 class TranslatorResult:
-    def __init__(self, text: str = "", lang_code: str = "en") -> None:
-        self.lang_code = lang_code
+    def __init__(self, text: str = "", language: str = get_default_language()) -> None:
+        self._language = language
+        self.language = language
         self.text = text
+
+    @property
+    def language(self): 
+        return self._language
+
+    @language.setter
+    def language(self, value):
+        self._language = standardize_language_code(value)
 
 
 class Translator(BasePlugin):

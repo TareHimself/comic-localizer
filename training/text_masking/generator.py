@@ -127,7 +127,7 @@ class SampleGenerator:
         backgrounds: Optional[list[Background]] = None,
     ):
         self.configs = configs if configs is not None else []
-        self.backgrounds = backgrounds if configs is not None else []
+        self.backgrounds = backgrounds if backgrounds is not None else []
 
     def add_config(self, config: GeneratorConfig):
         self.configs.append(config)

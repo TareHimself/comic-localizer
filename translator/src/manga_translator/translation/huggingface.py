@@ -12,7 +12,11 @@ from manga_translator.core.plugin import (
     PluginArgument,
 )
 import asyncio
-from manga_translator.utils import get_default_torch_device
+from manga_translator.utils import (
+    get_default_language,
+    get_default_torch_device,
+    standardize_language_code,
+)
 
 
 class HuggingFaceTranslator(Translator):
@@ -22,7 +26,7 @@ class HuggingFaceTranslator(Translator):
         self,
         model_url: str = "Helsinki-NLP/opus-mt-ja-en",
         input_language: str = "ja",
-        output_language: str = "en",
+        output_language: str = get_default_language(),
         device: torch.device = get_default_torch_device(),
     ) -> None:
         super().__init__()
@@ -34,7 +38,7 @@ class HuggingFaceTranslator(Translator):
             tgt_lang=output_language,
         )
         self.input_language = input_language
-        self.output_language = output_language
+        self.output_language = standardize_language_code(output_language)
         # if torch.cuda.is_available():
         #     self.pipeline.cuda()
         # elif torch.backends.mps.is_available():
@@ -50,7 +54,7 @@ class HuggingFaceTranslator(Translator):
         results = await asyncio.to_thread(self.predict, batch)
 
         return [
-            TranslatorResult(y["translation_text"], lang_code=self.output_language)
+            TranslatorResult(y["translation_text"], language=self.output_language)
             for y in results
         ]
 

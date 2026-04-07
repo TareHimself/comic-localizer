@@ -68,9 +68,8 @@ class GoogleCloudOCR(OCR):
                 annotations = response.get("textAnnotations", None)
                 if annotations is not None and len(annotations) > 0:
                     annotation = annotations[0]
-                    lang = langcodes.standardize_tag(annotation["locale"])
                     text = annotation["description"]
-                    ocr_results.append(OcrResult(text=text, language=lang))
+                    ocr_results.append(OcrResult(text=text, language=annotation["locale"]))
                     continue
 
                 ocr_results.append(OcrResult())

@@ -12,6 +12,8 @@ from manga_translator.core.plugin import (
 )
 from pydantic import BaseModel
 
+from manga_translator.utils import get_default_language, standardize_language_code
+
 
 class _OpenAITranslationResults(BaseModel):
     translations: list[str]
@@ -27,7 +29,12 @@ class OpenAiTranslator(Translator):
         ("GPT 5.1", "gpt-5.1-2025-11-13"),
     ]
 
-    def __init__(self, api_key="", target_lang="en", model=MODELS[0][1]) -> None:
+    def __init__(
+        self,
+        api_key="",
+        language: str = get_default_language(),
+        model=MODELS[0][1],
+    ) -> None:
         super().__init__()
 
         # api_key = os.getenv("OPENAI_API_KEY")
@@ -35,12 +42,12 @@ class OpenAiTranslator(Translator):
         if not api_key:
             raise ValueError("Missing OpenAI API key")
         self.openai = openai.Client(api_key=api_key)
-        self.target_lang = target_lang
+        self.language = standardize_language_code(language)
         self.model = model
-        self.instructions = f"""Auto-detect the source language and translate into {self.target_lang}.
+        self.instructions = f"""Auto-detect the source language and translate into {self.language}.
 TRANSLATION RULES:
 - Preserve tone, intent, and emotional nuance
-- Use idiomatic, natural phrasing in {self.target_lang}
+- Use idiomatic, natural phrasing in {self.language}
 - For dialogue/manga, express sighs, laughter, gasps, shock, or other reactions naturally (e.g. "sigh...", "ugh!", "ah!", "what?!")
 - Handle slang, mixed-language text, and names appropriately
 - All text may be from different sources
@@ -53,13 +60,13 @@ IMPORTANT:
 
     def do_translation(self, batch: list[OcrResult]):
         to_translate_indices = [
-            i for i in range(len(batch)) if batch[i].language != self.target_lang
+            i for i in range(len(batch)) if batch[i].language != self.language
         ]
 
         result = [
             TranslatorResult(
                 text=batch[i].text if i not in to_translate_indices else "",
-                lang_code=self.target_lang,
+                language=self.language,
             )
             for i in range(len(batch))
         ]
@@ -112,7 +119,7 @@ IMPORTANT:
                 id="api_key", name="API Key", description="Your api Key"
             ),
             LanguageStringArgument(
-                id="target_lang",
+                id="language",
                 name="Target Language",
                 description="The language to translate to",
             ),

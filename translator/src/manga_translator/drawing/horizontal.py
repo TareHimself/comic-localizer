@@ -71,11 +71,11 @@ class HorizontalDrawer(Drawer):
 
         mask = np.full_like(frame, 0, dtype=np.uint8)
         as_pil = cv2_to_pil(frame)
-        as_pil_mask = cv2_to_pil(mask)
+        mask_as_pill = cv2_to_pil(mask)
 
         pen = ImageDraw.Draw(as_pil)
 
-        pen_mask = ImageDraw.Draw(as_pil_mask)
+        mask_pen = ImageDraw.Draw(mask_as_pill)
 
         font = load_font(self.font_file, size=fit_result.font_size)
         text_bounds = np.array(fit_result.wrap.bounds)
@@ -110,7 +110,7 @@ class HorizontalDrawer(Drawer):
             )
 
             # text mask for compositing
-            pen_mask.text(
+            mask_pen.text(
                 (
                     x_pos,
                     y_pos,
@@ -122,7 +122,7 @@ class HorizontalDrawer(Drawer):
                 stroke_fill=(255, 255, 255, 255),
             )
 
-        return pil_to_cv2(as_pil), ensure_gray(pil_to_cv2(as_pil_mask))
+        return pil_to_cv2(as_pil), ensure_gray(pil_to_cv2(mask_as_pill))
 
     async def draw(
         self,
