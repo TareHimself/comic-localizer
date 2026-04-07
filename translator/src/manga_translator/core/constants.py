@@ -1,11 +1,10 @@
-class FilteredYoloInferenceIndices:
-    BBOX = 0
-    CLASS_NAME = 1
-    CONFIDENCE = 2
+from enum import Enum
 
-class DetectionClasses:
-    TextBubble = 0
-    FreeText = 1
 
-class SegmentationClasses:
+class DetectionType(Enum):
+    TextInBubble = 0
+    TextOnPage = 1
+
+
+class SegmentationType(Enum):
     Text = 0

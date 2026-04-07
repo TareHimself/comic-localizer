@@ -1,4 +1,5 @@
-.local
-.venv
+**/.local/
+**/.venv/
 *.pt
 __pycache__
+*.egg-info
