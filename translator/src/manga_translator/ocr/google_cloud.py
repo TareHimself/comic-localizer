@@ -8,7 +8,6 @@ from manga_translator.core.plugin import (
     PluginArgument,
     StringPluginArgument,
 )
-import langcodes
 import cv2
 import httpx
 
