@@ -13,7 +13,7 @@ pipeline:
     class: OpenAiTranslator
     args:
       api_key: 
-      target_lang: en
+      language: en-US
       model: gpt-5-nano-2025-08-07
   ocr:
     class: OpenAiOCR
