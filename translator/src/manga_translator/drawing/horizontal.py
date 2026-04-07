@@ -60,8 +60,9 @@ class HorizontalDrawer(Drawer):
             20,
             max_font_size=self.max_font_size,
             min_font_size=self.min_font_size,
-            line_spacing=self.line_spacing + (color.outline_size * 2),
+            line_spacing=self.line_spacing,
             hyphenator=self.hyphenator,
+            outline_size=color.outline_size
         )
 
         if fit_result is None:
