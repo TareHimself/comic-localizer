@@ -42,7 +42,7 @@ class YoloDetector(Detector):
         with torch.inference_mode():
             results = []
             for prediction in self.model.predict(
-                # RGB to BGR since model.predict expects BGR
+                # TODO RGB to BGR since model.predict expects BGR
                 batch,  # [x[..., ::-1] for x in batch],
                 device=self.device,
                 verbose=False,

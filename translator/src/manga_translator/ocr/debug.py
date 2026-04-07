@@ -6,12 +6,13 @@ from manga_translator.core.plugin import (
     StringPluginArgument,
     PluginArgument,
 )
+from manga_translator.utils import get_default_language
 
 
 class DebugOCR(OCR):
     """Outputs the specified text"""
 
-    def __init__(self, text="", language="en") -> None:
+    def __init__(self, text="", language=get_default_language()) -> None:
         super().__init__()
         self.to_write = text
         self.language = language

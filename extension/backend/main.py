@@ -86,7 +86,7 @@ if not CACHE_ENABLED:
     BASE_64_ENABLED = True
 
 
-# I cant figure out how to send requests these requests from the extension
+# I cant figure out how to send these requests from the extension
 @post("/api/v1/get-image")
 async def fetch_image(request: Request):
     data = await request.json()

@@ -339,7 +339,6 @@ def find_best_font_size(
                 break
 
             current_size = next_font_size
-
         else:
             current_max = current_size - 1
             next_font_size = find_next_test(current_min, current_max)

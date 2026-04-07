@@ -1,6 +1,7 @@
 import colorsys
 from contextlib import nullcontext
 import cv2
+import langcodes
 import torch
 import numpy as np
 import pyphen
@@ -175,15 +176,22 @@ def bbox_to_rect(bbox: tuple[float, float, float, float]):
 
 
 class LayoutCache:
-    def __init__(self, font: ImageFont.FreeTypeFont):
+    def __init__(self, font: ImageFont.FreeTypeFont,outline_size: int = 0):
         self.font = font
         self.cache = {}
+        self.outline_size = outline_size
 
     def get(self, text: str) -> tuple[float, float, float, float]:
         if text in self.cache:
             return self.cache[text]
-
-        self.cache[text] = bbox_to_rect(self.font.getbbox(text))
+        rect = bbox_to_rect(self.font.getbbox(text))
+        outline_width = sum(self.outline_size for char in text if char != " ")
+        self.cache[text] = (
+            rect[0],
+            rect[1],
+            rect[2] + outline_width,
+            rect[3] + (self.outline_size * 2),
+        )
 
         return self.cache[text]
 
@@ -244,8 +252,9 @@ def wrap_text_pure(
     font: ImageFont.FreeTypeFont,
     wrap_width: float = float("inf"),
     line_spacing: float = 2,
+    outline_size: int = 0
 ) -> Optional[WrapResult]:
-    layout_cache = LayoutCache(font=font)
+    layout_cache = LayoutCache(font=font,outline_size=outline_size)
     _, _, space_width, _ = layout_cache.get(" ")
     text_list = text.split()
     text_bounds = [(a, layout_cache.get(a)) for a in text_list]
@@ -287,8 +296,9 @@ def wrap_text_with_hyphenator(
     hyphenator: pyphen.Pyphen,
     wrap_width: float = float("inf"),
     line_spacing: float = 2,
+    outline_size: int = 0
 ) -> Optional[WrapResult]:
-    layout_cache = LayoutCache(font=font)
+    layout_cache = LayoutCache(font=font,outline_size=outline_size)
     hyphenation_cache = HyphenationCache(
         hyphenator=hyphenator, layout_cache=layout_cache, wrap=wrap_width
     )
@@ -382,14 +392,15 @@ def wrap_text_with_hyphenator(
 def wrap_text(
     text: str,
     font: ImageFont.FreeTypeFont,
-    wrap_width: float = float("inf"),
     hyphenator: Optional[pyphen.Pyphen] = None,
+    wrap_width: float = float("inf"),
     line_spacing: float = 2,
+    outline_size: int = 0
 ) -> Optional[WrapResult]:
     return (
-        wrap_text_pure(text, font, wrap_width, line_spacing)
+        wrap_text_pure(text, font, wrap_width, line_spacing,outline_size)
         if hyphenator is None
-        else wrap_text_with_hyphenator(text, font, hyphenator, wrap_width, line_spacing)
+        else wrap_text_with_hyphenator(text, font, hyphenator, wrap_width, line_spacing,outline_size)
     )
 
 
@@ -419,17 +430,25 @@ def find_best_font_size(
     tolerance=1,
     line_spacing: float = 2,
     hyphenator: Optional[pyphen.Pyphen] = None,
+    outline_size: int = 0
 ) -> Optional[FontFitResult]:
     current_size = min(font_size, max_font_size)
     current_max = max_font_size
     current_min = min_font_size
     best = None
-    while True:
+    while current_min <= current_max:
         font = load_font(font_file, current_size)
-        wrap_result = wrap_text(text, font, size[0], hyphenator, line_spacing)
+        wrap_result = wrap_text(
+            text=text,
+            font=font,
+            hyphenator=hyphenator,
+            wrap_width=size[0],
+            line_spacing=line_spacing,
+            outline_size=outline_size,
+        )
         if wrap_result is not None and wrap_result.bounds[1] <= size[1]:
             best = FontFitResult(current_size, wrap_result)
-            current_min = current_size
+            current_min = current_size + 1
             next_font_size = find_next_test(current_min, current_max)
 
             if abs(best.font_size - next_font_size) < tolerance:
@@ -438,7 +457,7 @@ def find_best_font_size(
             current_size = next_font_size
 
         else:
-            current_max = current_size
+            current_max = current_size - 1
             next_font_size = find_next_test(current_min, current_max)
             best_font_size = current_size if best is None else best.font_size
 
@@ -555,3 +574,15 @@ def get_autocast(device: torch.device, enabled=True):
     elif device.type == "cpu":
         return torch.autocast("cpu", dtype=torch.bfloat16)
     return nullcontext()
+
+def standardize_language_code(language: str):
+    try:
+        return langcodes.Language.get(language).to_tag()
+    except langcodes.LanguageTagError:
+        pass
+
+    return langcodes.Language.find(language).to_tag()
+
+
+def get_default_language() -> str:
+    return standardize_language_code("en-US")

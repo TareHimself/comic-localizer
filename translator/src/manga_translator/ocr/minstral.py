@@ -10,8 +10,11 @@ from manga_translator.core.plugin import (
     PluginArgument,
     StringPluginArgument,
 )
-from manga_translator.utils import cv2_to_pil
-import langcodes
+from manga_translator.utils import (
+    cv2_to_pil,
+    get_default_language,
+    standardize_language_code,
+)
 from lingua import Language, LanguageDetectorBuilder
 from typing import Optional
 from markdown_it import MarkdownIt
@@ -20,7 +23,7 @@ from mdit_plain.renderer import RendererPlain
 
 def lingua_lang_to_lang_code(language: Language):
     tag = repr(language.iso_code_639_3).split(".")[-1].lower()
-    return langcodes.standardize_tag(tag)
+    return standardize_language_code(tag)
 
 
 class MinstralOCR(OCR):
@@ -93,7 +96,9 @@ class MinstralOCR(OCR):
             for page, lang in zip(result["pages"], languages):
                 text_dict[page["index"]] = (
                     self.parser.render(page["markdown"]),
-                    "en" if lang is None else lingua_lang_to_lang_code(lang),
+                    get_default_language()
+                    if lang is None
+                    else lingua_lang_to_lang_code(lang),
                 )
 
             for _ in range(len(images)):
