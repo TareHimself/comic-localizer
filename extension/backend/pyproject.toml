@@ -41,4 +41,4 @@ cwd = "../../"
 
 [tool.poe.tasks.docker-run]
 help = "run the built docker image on port 9000"
-cmd = "docker run --gpus all -p 9000:9000 manga-translator-backend"
+cmd = "docker run --gpus all -p 9000:9000 tarehimself/manga-translator-server"
