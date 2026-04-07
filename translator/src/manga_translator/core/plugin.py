@@ -301,7 +301,7 @@ class Drawer(BasePlugin):
         frames: list[np.ndarray],
         translations: list[TranslatorResult],
         colors: list[ColorDetectionResult],
-    ) -> tuple[list[np.ndarray], list[np.ndarray]]:
+    ) -> list[tuple[np.ndarray, np.ndarray]]:
         return await self.draw(frames, translations, colors)
 
 

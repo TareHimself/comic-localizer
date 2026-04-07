@@ -32,7 +32,7 @@ class YoloSegmenter(Segmenter):
         with torch.inference_mode():
             results = []
             for prediction in self.model.predict(
-                # TODO  RGB to BGR since model.predic expects BGR
+                # TODO  RGB to BGR since model.predict expects BGR
                 batch,  # [x[..., ::-1] for x in batch],
                 conf=0.1,
                 device=self.device,

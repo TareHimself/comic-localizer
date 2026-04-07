@@ -152,7 +152,7 @@ class PatchedAiCleaner(Cleaner):
         return x
 
     def extract_patches(
-        self, frames: list[np.ndarray], segments: list[list[SegmentationResult]] = []
+        self, frames: list[np.ndarray], segments: list[list[SegmentationResult]]
     ) -> list[_AiImagePatch]:
         patches: list[_AiImagePatch] = []
 
