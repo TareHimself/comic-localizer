@@ -490,13 +490,33 @@ def ensure_gray(img: np.ndarray) -> np.ndarray:
 
 def compute_draw_bbox(section: np.ndarray) -> Vector4i:
     grey = ensure_gray(section)
-
+    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (7, 7))
+    
     height, width = grey.shape[:2]
 
+    
     ret, thresh = cv2.threshold(grey, 200, 255, 0)
 
+
+    mostlyWhite = np.mean(thresh > 127) > 0.5
+
+    # if an image has a lot of white the actual bubble is probably black so we would want to invert it because morphology will cleanup white areas
+    if mostlyWhite:
+        thresh = 255 - thresh
+
+    
+    morphed = cv2.morphologyEx(thresh,cv2.MORPH_CLOSE,kernel,iterations=3)
+    morphed = cv2.dilate(morphed,kernel)
+
+    padding = 4
+    padded = np.zeros((height + (padding * 2),width + (padding * 2)),dtype=morphed.dtype)
+
+    start = padding
+    # pad and invert since bubble is probably black and cv2.findContours needs it white
+    padded[start:start + height,start:start + width] = 255 - morphed
+
     contours, hierarchy = cv2.findContours(
-        thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE
+        padded, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
     )
 
     if len(contours) == 0:
@@ -509,12 +529,15 @@ def compute_draw_bbox(section: np.ndarray) -> Vector4i:
 
     polygon = np.array([largest_contour], dtype=np.int32)
 
-    # cv2.imshow("foo",cv2.fillPoly(section.copy(),largest_contour,(255,0,0,255)))
-    # cv2.waitKey(0)
     rect = lir.lir(polygon)
 
     p1x, p1y = lir.pt1(rect)
     p2x, p2y = lir.pt2(rect)
+
+    p1x = np.maximum(0,p1x - padding) 
+    p1y = np.maximum(0,p1y - padding) 
+    p2x = np.maximum(0,(p2x - padding) + 1) 
+    p2y = np.maximum(0,(p2y - padding) + 1) 
 
     return np.array([p1x, p1y, p2x, p2y], dtype=np.int32)
 
