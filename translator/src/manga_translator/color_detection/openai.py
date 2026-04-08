@@ -106,12 +106,17 @@ IMPORTANT:
         else:
             raise RuntimeError("Openai color detection failed")
 
-    async def detect_color(self, batch: list[np.ndarray]):
-        results = await asyncio.to_thread(self.do_color_detection, batch)
+    async def detect_color(
+        self,
+        text: list[np.ndarray],
+        cleaned: list[np.ndarray],
+        original: list[np.ndarray],
+    ):
+        results = await asyncio.to_thread(self.do_color_detection, text)
 
-        if len(results) != len(batch):
+        if len(results) != len(text):
             raise RuntimeError(
-                f"batch size was {len(batch)} but result size is {len(results)}"
+                f"batch size was {len(text)} but result size is {len(results)}"
             )
 
         return results
