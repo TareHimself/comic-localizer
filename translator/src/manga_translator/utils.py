@@ -11,6 +11,7 @@ from PIL import Image, ImageFont
 from manga_translator.core.typing import Vector4i, Vector3u8
 import functools
 import time
+from math import floor, ceil
 
 P = ParamSpec("P")
 R = TypeVar("R")
@@ -496,6 +497,27 @@ def compute_draw_bbox(section: np.ndarray) -> Vector4i:
 
     height, width = grey.shape[:2]
 
+    min_dim = min(height, width)
+
+    scale_to = 500
+    scale = 1
+    # Scaling for consistent kernel ops
+    if min_dim < scale_to:
+        scale = scale_to / float(min_dim)
+    elif min_dim > scale_to:
+        scale = min_dim / float(scale_to)
+
+    if scale != 1:
+        new_width = round(width * scale)
+        new_height = round(height * scale)
+        grey = cv2.resize(
+            grey,
+            (new_width, new_height),
+            interpolation=cv2.INTER_LINEAR if scale > 1 else cv2.INTER_AREA,
+        )
+        height = new_height
+        width = new_width
+
     ret, thresh = cv2.threshold(grey, 200, 255, 0)
 
     mostlyWhite = np.mean(thresh > 127) > 0.5
@@ -504,7 +526,7 @@ def compute_draw_bbox(section: np.ndarray) -> Vector4i:
     if mostlyWhite:
         thresh = 255 - thresh
 
-    morphed = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel, iterations=3)
+    morphed = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel, iterations=2)
     morphed = cv2.dilate(morphed, kernel)
 
     padding = 4
@@ -535,12 +557,12 @@ def compute_draw_bbox(section: np.ndarray) -> Vector4i:
     p1x, p1y = lir.pt1(rect)
     p2x, p2y = lir.pt2(rect)
 
-    p1x = np.maximum(0, p1x - padding)
-    p1y = np.maximum(0, p1y - padding)
-    p2x = np.maximum(0, (p2x - padding) + 1)
-    p2y = np.maximum(0, (p2y - padding) + 1)
-
-    return np.array([p1x, p1y, p2x, p2y], dtype=np.int32)
+    p1x = np.maximum(0, floor((p1x - padding) / scale))
+    p1y = np.maximum(0, floor((p1y - padding) / scale))
+    p2x = np.maximum(0, ceil(((p2x - padding) + 1) / scale))
+    p2y = np.maximum(0, ceil(((p2y - padding) + 1) / scale))
+    result = np.array([p1x, p1y, p2x, p2y], dtype=np.int32)
+    return result
 
 
 def get_available_pytorch_devices() -> list[tuple[str, str]]:
