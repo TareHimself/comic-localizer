@@ -36,7 +36,9 @@ def test_plugin_arguments_exist_in_constructor():
     for plugin in all_plugins.values():
         signature = inspect.signature(plugin.__init__)
         for argument in plugin.get_arguments():
-            assert argument.id in signature.parameters, f"Argument id [{argument.id}] not in {plugin.__name__}.__init__"
+            assert argument.id in signature.parameters, (
+                f"Argument id [{argument.id}] not in {plugin.__name__}.__init__"
+            )
 
 
 def test_construct_plugin_by_name_builds_plugin_with_converted_args():

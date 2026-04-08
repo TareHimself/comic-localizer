@@ -5,7 +5,11 @@ import pytest
 
 from manga_translator.cleaning.all_white_cleaner import AllWhiteCleaner
 from manga_translator.cleaning.opencv import OpenCvCleaner
-from manga_translator.core.plugin import ColorDetectionResult, OcrResult, TranslatorResult
+from manga_translator.core.plugin import (
+    ColorDetectionResult,
+    OcrResult,
+    TranslatorResult,
+)
 from manga_translator.drawing.horizontal import HorizontalDrawer
 from manga_translator.ocr.debug import DebugOCR
 from manga_translator.translation.debug import DebugTranslator
@@ -161,6 +165,3 @@ async def test_horizontal_drawer_async_draw_returns_pair_for_each_item(monkeypat
     assert len(out) == 1
     assert out[0][0].shape == frame.shape
     assert out[0][1].shape == frame.shape[:2]
-
-
-

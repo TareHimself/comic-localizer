@@ -192,8 +192,10 @@ class ImageToImagePipeline(Pipeline):
             cleaned = section.source[y1:y2, x1:x2]
 
             alpha = drawn_mask.astype(np.float32) / 255
-            alpha = alpha[..., None] # from (h,w) to (h,w,1)
-            section.source[y1:y2, x1:x2] = np.clip(drawn * alpha + cleaned * (1.0 - alpha), 0, 255).astype(np.uint8)
+            alpha = alpha[..., None]  # from (h,w) to (h,w,1)
+            section.source[y1:y2, x1:x2] = np.clip(
+                drawn * alpha + cleaned * (1.0 - alpha), 0, 255
+            ).astype(np.uint8)
 
     @perf_async
     async def __call__(self, batch: list[np.ndarray]) -> list[np.ndarray]:
