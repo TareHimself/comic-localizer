@@ -73,10 +73,10 @@ class StubTranslator(Translator):
 
 
 class StubColorDetector(ColorDetector):
-    async def detect_color(self, frames):
+    async def detect_color(self, text, cleaned, original):
         return [
             ColorDetectionResult(text_color=np.array([255, 255, 255], dtype=np.uint8))
-            for _ in frames
+            for _ in text
         ]
 
 

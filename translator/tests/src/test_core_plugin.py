@@ -152,7 +152,7 @@ async def test_base_cleaner_drawer_color_detector_contracts():
     assert np.array_equal(cleaned[0], frame)
     assert cleaned[0] is not frame
 
-    colors = await color_detector([frame])
+    colors = await color_detector([frame], [frame], [frame])
     assert len(colors) == 1
     assert isinstance(colors[0], ColorDetectionResult)
 
