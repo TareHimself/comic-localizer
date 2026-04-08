@@ -3,3 +3,6 @@
 *.pt
 __pycache__
 *.egg-info
+.pytest_cache
+**/resources/**
+config.yaml
