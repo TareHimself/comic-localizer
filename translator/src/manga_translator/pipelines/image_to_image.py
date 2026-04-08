@@ -190,11 +190,10 @@ class ImageToImagePipeline(Pipeline):
             x1, y1, x2, y2 = section.draw_bbox
 
             cleaned = section.source[y1:y2, x1:x2]
-            # Replace masked regions with white
-            a = cv2.bitwise_and(cleaned, cleaned, mask=cv2.bitwise_not(drawn_mask))
-            b = cv2.bitwise_and(drawn, drawn, mask=drawn_mask)
 
-            cv2.add(a, b, dst=section.source[y1:y2, x1:x2])
+            alpha = drawn_mask.astype(np.float32) / 255
+            alpha = alpha[..., None] # from (h,w) to (h,w,1)
+            section.source[y1:y2, x1:x2] = np.clip(drawn * alpha + cleaned * (1.0 - alpha), 0, 255).astype(np.uint8)
 
     @perf_async
     async def __call__(self, batch: list[np.ndarray]) -> list[np.ndarray]:
