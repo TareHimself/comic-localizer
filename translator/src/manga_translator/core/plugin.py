@@ -275,13 +275,21 @@ class ColorDetector(BasePlugin):
         super().__init__()
 
     async def detect_color(
-        self, frames: list[np.ndarray]
+        self,
+        text: list[np.ndarray],
+        cleaned: list[np.ndarray],
+        original: list[np.ndarray],
     ) -> list[ColorDetectionResult]:
-        return [ColorDetectionResult(np.zeros((3), dtype=np.uint8), 1) for _ in frames]
+        return [ColorDetectionResult(np.zeros((3), dtype=np.uint8), 1) for _ in text]
 
     @perf_async(name_override="detect_color")
-    async def __call__(self, frames: list[np.ndarray]) -> list[ColorDetectionResult]:
-        return await self.detect_color(frames)
+    async def __call__(
+        self,
+        text: list[np.ndarray],
+        cleaned: list[np.ndarray],
+        original: list[np.ndarray],
+    ) -> list[ColorDetectionResult]:
+        return await self.detect_color(text, cleaned, original)
 
 
 class Drawer(BasePlugin):
