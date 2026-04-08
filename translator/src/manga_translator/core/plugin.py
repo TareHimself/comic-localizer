@@ -187,14 +187,15 @@ class OcrResult:
         self._language = language
         self.language = language
         self.text = text
-        
+
     @property
-    def language(self): 
+    def language(self):
         return self._language
 
     @language.setter
     def language(self, value):
         self._language = standardize_language_code(value)
+
 
 class OCR(BasePlugin):
     """Always outputs \"\""""
@@ -227,7 +228,7 @@ class TranslatorResult:
         self.text = text
 
     @property
-    def language(self): 
+    def language(self):
         return self._language
 
     @language.setter
@@ -276,7 +277,7 @@ class ColorDetector(BasePlugin):
     async def detect_color(
         self, frames: list[np.ndarray]
     ) -> list[ColorDetectionResult]:
-        return [ColorDetectionResult(np.zeros((3), dtype=np.uint8),1) for _ in frames]
+        return [ColorDetectionResult(np.zeros((3), dtype=np.uint8), 1) for _ in frames]
 
     @perf_async(name_override="detect_color")
     async def __call__(self, frames: list[np.ndarray]) -> list[ColorDetectionResult]:

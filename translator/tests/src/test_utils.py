@@ -143,6 +143,7 @@ def test_get_default_torch_device_prefers_cuda_then_mps(monkeypatch):
 def test_get_autocast_returns_nullcontext_when_disabled_or_unsupported():
     """Autocast should become a nullcontext when disabled or for unsupported device."""
     from contextlib import nullcontext
+
     cpu = torch.device("cpu")
     assert isinstance(utils.get_autocast(cpu, enabled=False), nullcontext)
 
@@ -152,6 +153,7 @@ def test_get_autocast_returns_nullcontext_when_disabled_or_unsupported():
 
 def test_standardize_language_code_uses_find_when_get_raises(monkeypatch):
     """Language standardization should fall back to find() for human language names."""
+
     class FakeLanguageFacade:
         @staticmethod
         def get(_value):
