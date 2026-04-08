@@ -316,7 +316,9 @@ class ImageToImagePipeline(Pipeline):
 
                 # only do color detection on valid ocr and translation results
                 color_detection_results = await self.color_detector(
-                    [x.text for x in sections]
+                    [x.text for x in sections],
+                    [x.cleaned_section for x in sections],
+                    [x.section for x in sections],
                 )
 
                 drawn_results = await self.drawer(
