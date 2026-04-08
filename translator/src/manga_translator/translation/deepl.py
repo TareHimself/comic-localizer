@@ -15,9 +15,7 @@ from manga_translator.utils import get_default_language, standardize_language_co
 class DeepLTranslator(Translator):
     """The Best after GPT but it requires an auth token from here https://www.deepl.com/translator"""
 
-    def __init__(
-        self, auth_key=None, language: str = get_default_language()
-    ) -> None:
+    def __init__(self, auth_key=None, language: str = get_default_language()) -> None:
         super().__init__()
         self.client = deepl.DeepLClient(auth_key)
         self.language = standardize_language_code(language)
@@ -28,7 +26,7 @@ class DeepLTranslator(Translator):
             target_lang=self.language.upper(),
         )
 
-        return [TranslatorResult(text=x.text,language=self.language) for x in results]
+        return [TranslatorResult(text=x.text, language=self.language) for x in results]
 
     async def translate(self, batch: list[OcrResult]):
         return await asyncio.to_thread(self.do_api, batch)

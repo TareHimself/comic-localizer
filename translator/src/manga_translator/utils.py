@@ -176,7 +176,7 @@ def bbox_to_rect(bbox: tuple[float, float, float, float]):
 
 
 class LayoutCache:
-    def __init__(self, font: ImageFont.FreeTypeFont,outline_size: int = 0):
+    def __init__(self, font: ImageFont.FreeTypeFont, outline_size: int = 0):
         self.font = font
         self.cache = {}
         self.outline_size = outline_size
@@ -252,9 +252,9 @@ def wrap_text_pure(
     font: ImageFont.FreeTypeFont,
     wrap_width: float = float("inf"),
     line_spacing: float = 2,
-    outline_size: int = 0
+    outline_size: int = 0,
 ) -> Optional[WrapResult]:
-    layout_cache = LayoutCache(font=font,outline_size=outline_size)
+    layout_cache = LayoutCache(font=font, outline_size=outline_size)
     _, _, space_width, _ = layout_cache.get(" ")
     text_list = text.split()
     text_bounds = [(a, layout_cache.get(a)) for a in text_list]
@@ -296,9 +296,9 @@ def wrap_text_with_hyphenator(
     hyphenator: pyphen.Pyphen,
     wrap_width: float = float("inf"),
     line_spacing: float = 2,
-    outline_size: int = 0
+    outline_size: int = 0,
 ) -> Optional[WrapResult]:
-    layout_cache = LayoutCache(font=font,outline_size=outline_size)
+    layout_cache = LayoutCache(font=font, outline_size=outline_size)
     hyphenation_cache = HyphenationCache(
         hyphenator=hyphenator, layout_cache=layout_cache, wrap=wrap_width
     )
@@ -395,12 +395,14 @@ def wrap_text(
     hyphenator: Optional[pyphen.Pyphen] = None,
     wrap_width: float = float("inf"),
     line_spacing: float = 2,
-    outline_size: int = 0
+    outline_size: int = 0,
 ) -> Optional[WrapResult]:
     return (
-        wrap_text_pure(text, font, wrap_width, line_spacing,outline_size)
+        wrap_text_pure(text, font, wrap_width, line_spacing, outline_size)
         if hyphenator is None
-        else wrap_text_with_hyphenator(text, font, hyphenator, wrap_width, line_spacing,outline_size)
+        else wrap_text_with_hyphenator(
+            text, font, hyphenator, wrap_width, line_spacing, outline_size
+        )
     )
 
 
@@ -430,7 +432,7 @@ def find_best_font_size(
     tolerance=1,
     line_spacing: float = 2,
     hyphenator: Optional[pyphen.Pyphen] = None,
-    outline_size: int = 0
+    outline_size: int = 0,
 ) -> Optional[FontFitResult]:
     current_size = min(font_size, max_font_size)
     current_max = max_font_size
@@ -491,12 +493,10 @@ def ensure_gray(img: np.ndarray) -> np.ndarray:
 def compute_draw_bbox(section: np.ndarray) -> Vector4i:
     grey = ensure_gray(section)
     kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (7, 7))
-    
+
     height, width = grey.shape[:2]
 
-    
     ret, thresh = cv2.threshold(grey, 200, 255, 0)
-
 
     mostlyWhite = np.mean(thresh > 127) > 0.5
 
@@ -504,16 +504,17 @@ def compute_draw_bbox(section: np.ndarray) -> Vector4i:
     if mostlyWhite:
         thresh = 255 - thresh
 
-    
-    morphed = cv2.morphologyEx(thresh,cv2.MORPH_CLOSE,kernel,iterations=3)
-    morphed = cv2.dilate(morphed,kernel)
+    morphed = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel, iterations=3)
+    morphed = cv2.dilate(morphed, kernel)
 
     padding = 4
-    padded = np.zeros((height + (padding * 2),width + (padding * 2)),dtype=morphed.dtype)
+    padded = np.zeros(
+        (height + (padding * 2), width + (padding * 2)), dtype=morphed.dtype
+    )
 
     start = padding
     # pad and invert since bubble is probably black and cv2.findContours needs it white
-    padded[start:start + height,start:start + width] = 255 - morphed
+    padded[start : start + height, start : start + width] = 255 - morphed
 
     contours, hierarchy = cv2.findContours(
         padded, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
@@ -534,10 +535,10 @@ def compute_draw_bbox(section: np.ndarray) -> Vector4i:
     p1x, p1y = lir.pt1(rect)
     p2x, p2y = lir.pt2(rect)
 
-    p1x = np.maximum(0,p1x - padding) 
-    p1y = np.maximum(0,p1y - padding) 
-    p2x = np.maximum(0,(p2x - padding) + 1) 
-    p2y = np.maximum(0,(p2y - padding) + 1) 
+    p1x = np.maximum(0, p1x - padding)
+    p1y = np.maximum(0, p1y - padding)
+    p2x = np.maximum(0, (p2x - padding) + 1)
+    p2y = np.maximum(0, (p2y - padding) + 1)
 
     return np.array([p1x, p1y, p2x, p2y], dtype=np.int32)
 
@@ -597,6 +598,7 @@ def get_autocast(device: torch.device, enabled=True):
     elif device.type == "cpu":
         return torch.autocast("cpu", dtype=torch.bfloat16)
     return nullcontext()
+
 
 def standardize_language_code(language: str):
     try:

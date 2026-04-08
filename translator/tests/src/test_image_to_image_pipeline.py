@@ -67,7 +67,9 @@ class StubTranslator(Translator):
         self._texts = texts
 
     async def translate(self, batch):
-        return [TranslatorResult(text=t, language=ENGLISH_LANGUAGE) for t in self._texts]
+        return [
+            TranslatorResult(text=t, language=ENGLISH_LANGUAGE) for t in self._texts
+        ]
 
 
 class StubColorDetector(ColorDetector):
