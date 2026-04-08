@@ -13,10 +13,12 @@ class BasicColorDetector(ColorDetector):
     def __init__(self) -> None:
         super().__init__()
 
-    def do_color_detection(self, batch: list[np.ndarray]) -> list[ColorDetectionResult]:
+    def do_color_detection(
+        self, cleaned: list[np.ndarray]
+    ) -> list[ColorDetectionResult]:
         results = []
-        for x in batch:
-            ret, thresh = cv2.threshold(ensure_gray(x), 200, 255, 0)
+        for x in cleaned:
+            ret, thresh = cv2.threshold(ensure_gray(x), 127, 255, 0)
             mostlyWhite = np.mean(thresh > 127) > 0.5
             if mostlyWhite:
                 results.append(ColorDetectionResult(np.zeros((3), dtype=np.uint8), 1))
@@ -27,8 +29,13 @@ class BasicColorDetector(ColorDetector):
 
         return results
 
-    async def detect_color(self, batch: list[np.ndarray]) -> list[ColorDetectionResult]:
-        results = await asyncio.to_thread(self.do_color_detection, batch)
+    async def detect_color(
+        self,
+        text: list[np.ndarray],
+        cleaned: list[np.ndarray],
+        original: list[np.ndarray],
+    ) -> list[ColorDetectionResult]:
+        results = await asyncio.to_thread(self.do_color_detection, cleaned)
         return results
 
     @staticmethod
