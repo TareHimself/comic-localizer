@@ -119,7 +119,7 @@ class HorizontalDrawer(Drawer):
                 str(text),
                 fill=(255, 255, 255, 255),
                 font=font,
-                stroke_width=color.outline_size + 1,
+                stroke_width=color.outline_size,
                 stroke_fill=(255, 255, 255, 255),
             )
 
