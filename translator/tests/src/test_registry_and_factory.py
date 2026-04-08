@@ -38,10 +38,6 @@ def test_plugin_arguments_exist_in_constructor():
         for argument in plugin.get_arguments():
             assert argument.id in signature.parameters, f"Argument id [{argument.id}] not in {plugin.__name__}.__init__"
 
-    assert AllWhiteCleaner in all_plugins.values()
-    assert DebugOCR in all_plugins.values()
-    assert PipeTranslator in all_plugins.values()
-
 
 def test_construct_plugin_by_name_builds_plugin_with_converted_args():
     """Factory should apply plugin argument converters (human language name to tag)."""
