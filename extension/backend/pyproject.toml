@@ -5,7 +5,7 @@ description = "Backend for the extension example"
 requires-python = ">=3.12"
 dependencies = [
     "blacksheep>=2.4.5",
-    "manga_translator",
+    "manga-translator",
     "opencv-python-headless>=4.11.0.86",
     "poethepoet>=0.39.0",
     "uvicorn>=0.40.0",
@@ -24,7 +24,7 @@ torch = [
 torchvision = [
   { index = "pytorch-cu128", marker = "sys_platform == 'linux' or sys_platform == 'win32'" },
 ]
-manga_translator = { path = "../../translator", editable = true }
+manga-translator = { path = "../../translator", editable = true }
 
 [tool.poe.tasks.prod]
 help = "run the server using uvicorn"
@@ -41,4 +41,4 @@ cwd = "../../"
 
 [tool.poe.tasks.docker-run]
 help = "run the built docker image on port 9000"
-cmd = "docker run --gpus all -p 9000:9000 manga-translator-backend"
+cmd = "docker run --gpus all -p 9000:9000 tarehimself/manga-translator-server"
