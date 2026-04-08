@@ -536,8 +536,8 @@ def compute_draw_bbox(section: np.ndarray) -> Vector4i:
 
     p1x = np.maximum(0,p1x - padding) 
     p1y = np.maximum(0,p1y - padding) 
-    p2x = np.maximum(0,p2x - padding) 
-    p2y = np.maximum(0,p2y - padding) 
+    p2x = np.maximum(0,(p2x - padding) + 1) 
+    p2y = np.maximum(0,(p2y - padding) + 1) 
 
     return np.array([p1x, p1y, p2x, p2y], dtype=np.int32)
 
