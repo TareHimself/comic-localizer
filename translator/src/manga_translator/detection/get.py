@@ -1,3 +1,4 @@
+from typing import Sequence
 from manga_translator.core.plugin import Detector
 from manga_translator.detection.yolo import YoloDetector
 
@@ -9,5 +10,5 @@ _detection_data = list(
 )
 
 
-def get_detectors() -> list[Detector]:
+def get_detectors() -> Sequence[type[Detector]]:
     return _detection_data

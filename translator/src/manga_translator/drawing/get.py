@@ -1,3 +1,4 @@
+from typing import Sequence
 from manga_translator.core.plugin import Drawer
 from manga_translator.drawing.horizontal import HorizontalDrawer
 
@@ -9,5 +10,5 @@ _drawing_data = list(
 )
 
 
-def get_drawers() -> list[Drawer]:
+def get_drawers() -> Sequence[type[Drawer]]:
     return _drawing_data
