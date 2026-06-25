@@ -109,7 +109,7 @@ class Background:
 
     @staticmethod
     def file(file_path: str):
-        return Background(cv2.imread(file_path, cv2.IMREAD_COLOR_BGR))
+        return Background(cv2.imread(file_path, cv2.IMREAD_COLOR_RGB))
 
     @staticmethod
     def black(width=512, height=512, channels=3):
@@ -245,7 +245,8 @@ class SampleGenerator:
                     lines.append(line)
 
                 cv2.imwrite(
-                    os.path.join(images_path, f"{sample_name}.png"), sample.image
+                    os.path.join(images_path, f"{sample_name}.png"),
+                    cv2.cvtColor(sample.image, cv2.COLOR_RGB2BGR),
                 )
                 with open(
                     os.path.join(labels_path, f"{sample_name}.txt"),

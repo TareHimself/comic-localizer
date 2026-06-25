@@ -41,7 +41,7 @@ def test(images: list[str], model_path: str):
     model = model.to(device)
 
     input_images = [
-        transform(image=cv2.imread(x, cv2.IMREAD_COLOR))["image"] for x in images
+        transform(image=cv2.imread(x, cv2.IMREAD_COLOR_RGB))["image"] for x in images
     ]
     processed = feature_extractor(input_images, return_tensors="pt")["pixel_values"].to(
         device

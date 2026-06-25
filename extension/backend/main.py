@@ -116,16 +116,16 @@ def compute_hash(data):
 
 def bytes_to_mat(data: bytes):
     array = np.asarray(bytearray(data), dtype=np.uint8)
-    return cv2.imdecode(array, cv2.IMREAD_COLOR_BGR)
+    return cv2.imdecode(array, cv2.IMREAD_COLOR_RGB)
 
 
 def post_translation(key: str, data: np.ndarray) -> str:
     if CACHE_ENABLED:
         save_path = os.path.join(TRANSLATED_IMAGES_PATH, f"{key}.png")
-        cv2.imwrite(save_path, data)
+        cv2.imwrite(save_path, cv2.cvtColor(data, cv2.COLOR_RGB2BGR))
 
     if BASE_64_ENABLED:
-        ok, encoded = cv2.imencode(".png", data)
+        ok, encoded = cv2.imencode(".png", cv2.cvtColor(data, cv2.COLOR_RGB2BGR))
         if not ok:
             raise ValueError("Failed to encode translated image")
         return "data:image/png;base64," + base64.b64encode(encoded.tobytes()).decode(
@@ -145,7 +145,7 @@ def get_cached(key: str) -> str:
 
 
 def save_translated(file_path: str, data: np.ndarray):
-    cv2.imwrite(file_path, data)
+    cv2.imwrite(file_path, cv2.cvtColor(data, cv2.COLOR_RGB2BGR))
 
 
 def make_translated_url(key):
