@@ -1,3 +1,5 @@
+import numpy as np
+
 from manga_translator.core.constants import SegmentationType
 from manga_translator.core.plugin import (
     PluginArgument,
@@ -22,9 +24,9 @@ class YoloSegmenter(Segmenter):
         self.device = device
 
     @staticmethod
-    def conv_cls(cls: int):
+    def conv_cls(cls_id: int):
         try:
-            return SegmentationType(cls)
+            return SegmentationType(cls_id)
         except ValueError:
             return SegmentationType.Text
 
@@ -32,23 +34,24 @@ class YoloSegmenter(Segmenter):
         with torch.inference_mode():
             results = []
             for prediction in self.model.predict(
-                # TODO  RGB to BGR since model.predict expects BGR
-                batch,  # [x[..., ::-1] for x in batch],
+                [
+                    x[..., ::-1] for x in batch
+                ],  # flip RGB to BGR since ultralytics expects BGR
                 conf=0.1,
                 device=self.device,
                 verbose=False,
             ):
                 result = []
 
-                if prediction.masks is not None:
-                    classes = prediction.boxes.cls.cpu().int()
-                    confidence = prediction.boxes.conf.cpu()
+                if prediction.masks is not None and prediction.boxes is not None:
+                    classes = prediction.boxes.cls.cpu().int()  # type: ignore[union-attr]
+                    confidence = prediction.boxes.conf.cpu()  # type: ignore[union-attr]
                     masks = prediction.masks.xy
 
                     for mask, cls, conf in zip(masks, classes, confidence):
                         result.append(
                             SegmentationResult(
-                                YoloSegmenter.conv_cls(cls.item()),
+                                YoloSegmenter.conv_cls(int(cls.item())),
                                 mask.astype(int),
                                 conf.item(),
                             )
@@ -58,8 +61,8 @@ class YoloSegmenter(Segmenter):
 
             return results
 
-    async def segment(self, batch):
-        return await asyncio.to_thread(self.predict, batch)
+    async def segment(self, frames: list[np.ndarray]) -> list[list[SegmentationResult]]:
+        return await asyncio.to_thread(self.predict, frames)
 
     @staticmethod
     def get_name() -> str:

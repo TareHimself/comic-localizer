@@ -1,6 +1,6 @@
 import numpy as np
 import torch
-from manga_translator.core.typing import Vector4i, Vector2, Vector3u8
+from manga_translator.core.typing import Vector4i, Vector3u8
 from manga_translator.utils import (
     get_available_pytorch_devices,
     get_default_language,
@@ -46,7 +46,7 @@ class PluginArgument:
         self.default = default
         self.convert_fn = convert_fn
 
-    def get(self) -> dict[str, str]:
+    def get(self) -> dict:
         return {
             "id": self.id,
             "name": self.name,
@@ -335,7 +335,7 @@ class Detector(BasePlugin):
 
 class SegmentationResult:
     def __init__(
-        self, type: SegmentationType, points: list[Vector2], confidence: float
+        self, type: SegmentationType, points: np.ndarray, confidence: float
     ):
         self.type = type
         self.points = points

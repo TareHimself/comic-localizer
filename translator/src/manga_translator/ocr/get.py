@@ -1,3 +1,4 @@
+from typing import Sequence
 from manga_translator.core.plugin import OCR
 from manga_translator.ocr.debug import DebugOCR
 from manga_translator.ocr.huggingface import HuggingFaceOCR
@@ -14,5 +15,5 @@ _ocr_data = list(
 )
 
 
-def get_ocrs() -> list[OCR]:
+def get_ocrs() -> Sequence[type[OCR]]:
     return _ocr_data

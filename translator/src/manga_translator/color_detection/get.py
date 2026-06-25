@@ -1,3 +1,4 @@
+from typing import Sequence
 from manga_translator.color_detection.basic import BasicColorDetector
 from manga_translator.core.plugin import ColorDetector
 from manga_translator.color_detection.openai import OpenAiColorDetector
@@ -10,5 +11,5 @@ _color_detection_data = list(
 )
 
 
-def get_color_detectors() -> list[ColorDetector]:
+def get_color_detectors() -> Sequence[type[ColorDetector]]:
     return _color_detection_data

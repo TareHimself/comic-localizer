@@ -13,15 +13,19 @@ class CbzPipeline(Pipeline):
         self.image_to_image = image_to_image
 
     @staticmethod
+    def write_image_sync(file_path: str, image: np.ndarray):
+        cv2.imwrite(file_path, cv2.cvtColor(image, cv2.COLOR_RGB2BGR))
+
+    @staticmethod
     async def read_image(file_path: str) -> np.ndarray:
-        return await asyncio.to_thread(cv2.imread, file_path)
+        return await asyncio.to_thread(cv2.imread, file_path, cv2.IMREAD_COLOR_RGB)
 
     @staticmethod
-    async def write_image(file_path: str, image: np.ndarray) -> np.ndarray:
-        return await asyncio.to_thread(cv2.imwrite, file_path, image)
+    async def write_image(file_path: str, image: np.ndarray) -> None:
+        return await asyncio.to_thread(CbzPipeline.write_image_sync, file_path, image)
 
     @staticmethod
-    def extract_zip(file_path: str, dest_dir: str) -> np.ndarray:
+    def extract_zip(file_path: str, dest_dir: str) -> list[str]:
         with zipfile.ZipFile(file_path) as zf:
             # Only keep real files (not directory entries)
             filenames = [zi.filename for zi in zf.infolist() if not zi.is_dir()]

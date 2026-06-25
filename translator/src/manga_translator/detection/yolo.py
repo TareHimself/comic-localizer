@@ -32,9 +32,9 @@ class YoloDetector(Detector):
         self.skip_free_text = skip_free_text
 
     @staticmethod
-    def conv_cls(cls: int):
+    def conv_cls(cls_id: int):
         try:
-            return DetectionType(cls)
+            return DetectionType(cls_id)
         except ValueError:
             return DetectionType.TextOnPage
 
@@ -42,17 +42,21 @@ class YoloDetector(Detector):
         with torch.inference_mode():
             results = []
             for prediction in self.model.predict(
-                # TODO RGB to BGR since model.predict expects BGR
-                batch,  # [x[..., ::-1] for x in batch],
+                [
+                    x[..., ::-1] for x in batch
+                ],  # flip RGB to BGR since ultralytics expects BGR
                 device=self.device,
                 verbose=False,
                 conf=self.confidence,
                 iou=self.iou,
             ):
                 result = []
-                boxes = prediction.boxes.xyxy.cpu().int().numpy()
-                classes = prediction.boxes.cls.cpu().int()
-                confidence = prediction.boxes.conf.cpu()
+                if prediction.boxes is None:
+                    results.append(result)
+                    continue
+                boxes = prediction.boxes.xyxy.cpu().int().numpy()  # type: ignore[union-attr]
+                classes = prediction.boxes.cls.cpu().int()  # type: ignore[union-attr]
+                confidence = prediction.boxes.conf.cpu()  # type: ignore[union-attr]
 
                 for bbox, cls, conf in zip(boxes, classes, confidence):
                     # depending on model accuracy I have noticed some text bubbles are detected as free text, will need to do custom nms to catch this since we trust text_bubble more than text_free
@@ -60,7 +64,7 @@ class YoloDetector(Detector):
                         continue
                     result.append(
                         DetectionResult(
-                            YoloDetector.conv_cls(cls.item()), bbox, conf.item()
+                            YoloDetector.conv_cls(int(cls.item())), bbox, conf.item()
                         )
                     )
 
@@ -68,8 +72,8 @@ class YoloDetector(Detector):
 
             return results
 
-    async def detect(self, batch):
-        return await asyncio.to_thread(self.predict, batch)
+    async def detect(self, frames: list[np.ndarray]) -> list[list[DetectionResult]]:
+        return await asyncio.to_thread(self.predict, frames)
 
     @staticmethod
     def get_name() -> str:
