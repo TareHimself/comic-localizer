@@ -16,9 +16,15 @@ class SmartFormatter(argparse.HelpFormatter):
 # def list_to_json()
 
 
+def read_image(source_path):
+    return cv2.imread(source_path, cv2.IMREAD_COLOR_RGB)
+
+
 def write_image(source_path, destination, image):
     dest_name = os.path.basename(source_path)
-    cv2.imwrite(os.path.join(destination, dest_name), image)
+    cv2.imwrite(
+        os.path.join(destination, dest_name), cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+    )
 
 
 async def main():
@@ -75,7 +81,7 @@ async def main():
         print(f"Processing batch [{batch_start} : {batch_start + batch_size}]")
         target_files = files[batch_start : batch_start + batch_size]
         images = await asyncio.gather(
-            *[asyncio.to_thread(cv2.imread, file_path) for file_path in target_files]
+            *[asyncio.to_thread(read_image, file_path) for file_path in target_files]
         )
 
         results = await pipeline(images)
