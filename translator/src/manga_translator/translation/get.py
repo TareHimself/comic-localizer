@@ -1,3 +1,4 @@
+from typing import Sequence
 from manga_translator.core.plugin import Translator
 from manga_translator.translation.deepl import DeepLTranslator
 from manga_translator.translation.huggingface import HuggingFaceTranslator
@@ -19,5 +20,5 @@ _translator_data = list(
 )
 
 
-def get_translators() -> list[Translator]:
+def get_translators() -> Sequence[type[Translator]]:
     return _translator_data

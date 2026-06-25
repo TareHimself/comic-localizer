@@ -11,7 +11,7 @@ import cv2
 import torch
 
 
-def main():
+async def main():
     device = torch.device("cpu")
     pipeline = ImageToImagePipeline(
         translator=DeepLTranslator(auth_key="Some deepl api key"),
@@ -22,11 +22,11 @@ def main():
         ocr=MangaOCR(device=device),  # MangaOcr(device=torch.device('cuda:0')),
         color_detector=ColorDetector(),
     )
-    image = cv2.imread(r"./file.png")
-    result = asyncio.run(pipeline([image]))[0]
+    image = cv2.imread(r"./file.png", cv2.IMREAD_COLOR_RGB)
+    result = (await pipeline([image]))[0]
     cv2.imshow("Translated", result)
     cv2.waitKey(0)
 
 
 if __name__ == "__main__":
-    main()
+    asyncio.run(main())

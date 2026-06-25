@@ -1,3 +1,4 @@
+from typing import Sequence
 from manga_translator.core.plugin import Cleaner
 from manga_translator.cleaning.all_white_cleaner import AllWhiteCleaner
 from manga_translator.cleaning.opencv import OpenCvCleaner
@@ -12,5 +13,5 @@ _data = list(
 )
 
 
-def get_cleaners() -> list[Cleaner]:
+def get_cleaners() -> Sequence[type[Cleaner]]:
     return _data

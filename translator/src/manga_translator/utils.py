@@ -167,7 +167,7 @@ class WrappedLine:
 
 
 class WrapResult:
-    def __init__(self, lines: list[WrappedLine], bounds: tuple[int, int]):
+    def __init__(self, lines: list[WrappedLine], bounds: tuple[int | float, int | float]):
         self.lines = lines
         self.bounds = bounds
 
@@ -212,7 +212,7 @@ class HyphenationCache:
             (hyphenation[1], self.layout_cache.get(hyphenation[1])),
         ]
 
-    def filter_out_impossible(self, hyphenations: list[list[str]]):
+    def filter_out_impossible(self, hyphenations: list[list[tuple[str, tuple[float, float, float, float]]]]):
         return filter(
             lambda hyp: max(hyp, key=lambda item: item[1][2])[1][2] <= self.wrap,
             hyphenations,
@@ -288,7 +288,7 @@ def wrap_text_pure(
         x_bounds = max(x_bounds, x_offset)
 
     last_line = lines[-1]
-    return WrapResult(lines, (x_bounds, last_line.offset + last_line.height))
+    return WrapResult(lines, (int(x_bounds), int(last_line.offset + last_line.height)))
 
 
 def wrap_text_with_hyphenator(
@@ -387,7 +387,7 @@ def wrap_text_with_hyphenator(
         x_offset = new_offset
 
     last_line = lines[-1]
-    return WrapResult(lines, (x_bounds, last_line.offset + last_line.height))
+    return WrapResult(lines, (int(x_bounds), int(last_line.offset + last_line.height)))
 
 
 def wrap_text(
@@ -476,7 +476,7 @@ def cv2_to_pil(img: np.ndarray) -> Image.Image:
     return Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
 
 
-def pil_to_cv2(img: Image) -> np.ndarray:
+def pil_to_cv2(img: Image.Image) -> np.ndarray:
     arr = np.array(img)
 
     if len(arr.shape) > 2 and arr.shape[2] == 4:
@@ -608,7 +608,7 @@ def inverse_luminance_color(rgb: np.ndarray) -> Vector3u8:
 
     # Back to RGB
     r2, g2, b2 = colorsys.hls_to_rgb(h, l, s)
-    return np.array([int(round(x * 255)) for x in (r2, g2, b2)], dtype=np.uint8)
+    return np.array([int(round(x * 255)) for x in (r2, g2, b2)], dtype=np.uint8) # type: ignore
 
 
 def get_autocast(device: torch.device, enabled=True):
@@ -625,7 +625,7 @@ def get_autocast(device: torch.device, enabled=True):
 def standardize_language_code(language: str):
     try:
         return langcodes.Language.get(language).to_tag()
-    except langcodes.LanguageTagError:
+    except langcodes.LanguageTagError: # type: ignore
         pass
 
     return langcodes.Language.find(language).to_tag()
