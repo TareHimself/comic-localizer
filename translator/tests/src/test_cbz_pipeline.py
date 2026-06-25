@@ -91,10 +91,9 @@ async def test_cbz_read_image_and_write_image_static_helpers(tmp_path):
     image = np.full(TEST_IMAGE_SHAPE, 123, dtype=np.uint8)
     image_path = tmp_path / "img.png"
 
-    wrote = await CbzPipeline.write_image(str(image_path), image)
+    await CbzPipeline.write_image(str(image_path), image)
     read_back = await CbzPipeline.read_image(str(image_path))
 
-    assert wrote is True
     assert read_back is not None
     assert read_back.shape == image.shape
     assert int(read_back[0, 0, 0]) == 123

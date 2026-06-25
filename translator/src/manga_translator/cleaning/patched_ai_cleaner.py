@@ -63,8 +63,8 @@ class PatchedAiCleaner(Cleaner):
         self.max_group_pixels = max_group_pixels
         self.zero_max = np.zeros((2), dtype=np.int32)
 
-    def load_model(self, model_path: str, device: torch.device) -> "torch.Module":
-        return torch.jit.load(model_path, map_location=device).eval()
+    def load_model(self, model_path: str, device: torch.device) -> torch.jit.ScriptModule:
+        return torch.jit.load(model_path, map_location=device).eval()  # type: ignore[return-value]
 
     def group_patches(self, patches: list[_AiImagePatch]):
         # we can do some kind of size based grouping to batch here
@@ -102,7 +102,7 @@ class PatchedAiCleaner(Cleaner):
         return number + (0 if remainder == 0 else factor - remainder)
 
     def process_input_batched(self, batch: list[np.ndarray]) -> torch.Tensor:
-        tensors = [torch.from_numpy(x).permute(2, 0, 1).flip(0) for x in batch]
+        tensors = [torch.from_numpy(x).permute(2, 0, 1) for x in batch]
         max_shape = np.stack([np.array(t.shape[1:]) for t in tensors]).max(axis=0)
         h, w = max_shape
         h = self.to_factor(h, 8)
@@ -145,11 +145,10 @@ class PatchedAiCleaner(Cleaner):
         return stacked_tensors / 255.0
 
     def process_output_batched(self, x: torch.Tensor) -> np.ndarray:
-        x = (
-            (x * 255).clip(0, 255).byte().flip(1).permute(0, 2, 3, 1)
-        )  # Flip back to BGR then back to numpy
-        x = x.numpy()
-        return x
+        result = (
+            (x * 255).clip(0, 255).byte().permute(0, 2, 3, 1)
+        ).numpy()
+        return result
 
     def extract_patches(
         self, frames: list[np.ndarray], segments: list[list[SegmentationResult]]
@@ -238,7 +237,7 @@ class PatchedAiCleaner(Cleaner):
             mask = np.zeros((h, w), dtype=np.uint8)
             for detection in frame_detections:
                 x1, y1, x2, y2 = detection.bbox
-                cv2.rectangle(mask, (x1, y1), (x2, y2), 255, thickness=-1)
+                cv2.rectangle(mask, (x1, y1), (x2, y2), (255,), thickness=-1)
 
             a = cv2.bitwise_and(frame, frame, mask=cv2.bitwise_not(mask))
             b = cv2.bitwise_and(cleaned, cleaned, mask=mask)

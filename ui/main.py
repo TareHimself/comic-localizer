@@ -32,7 +32,6 @@ from manga_translator.drawing.get import get_drawers
 from manga_translator.detection.get import get_detectors
 from manga_translator.segmentation.get import get_segmenters
 from manga_translator.cleaning.get import get_cleaners
-from PIL import Image
 from dataclass_wizard import JSONWizard
 from typing import Any
 
@@ -43,18 +42,6 @@ build_path = os.path.join(os.path.dirname(__file__), "frontend", "dist")
 app.serve_files(source_folder=build_path, discovery=True)
 
 default_component = {"id": 0, "args": {}}
-
-
-def cv2_image_from_url(url: str):
-    if url.startswith("http"):
-        return pil_to_cv2(Image.open(io.BytesIO(requests.get(url).content)))
-    else:
-        sanitized = urllib.parse.unquote(url.split("?")[0])
-        data = cv2.imread(sanitized)
-
-        if data is None:
-            raise BaseException(f"Failed to load image from path {url}")
-        return data
 
 
 REQUEST_SECTION_REGEX = r"id=([0-9]+)(.*)"
@@ -77,11 +64,11 @@ def extract_params(data: str) -> tuple[int, dict[str, str]]:
 
 def bytes_to_mat(data: bytes):
     array = np.asarray(bytearray(data), dtype=np.uint8)
-    return cv2.imdecode(array, cv2.IMREAD_COLOR_BGR)
+    return cv2.imdecode(array, cv2.IMREAD_COLOR_RGB)
 
 
 def mat_to_bytes(data: np.ndarray):
-    success, encoded_bytes = cv2.imencode(".png", data)
+    success, encoded_bytes = cv2.imencode(".png", cv2.cvtColor(data, cv2.COLOR_BGR2RGB))
     return encoded_bytes.tobytes()
 
 
