@@ -34,8 +34,13 @@ class HuggingFaceTranslator(Translator):
             "translation",
             model=model_url,
             device=device,
-            src_lang=input_language,
-            tgt_lang=output_language,
+        )
+        # src_lang/tgt_lang are only meaningful for multilingual tokenizers
+        # (mBART/M2M100/NLLB/etc.) that define _build_translation_inputs.
+        # MarianMT (the default model) doesn't, and transformers silently
+        # ignores them for it, so only pass them when the tokenizer supports it.
+        self._supports_lang_pair = hasattr(
+            self.pipeline.tokenizer, "_build_translation_inputs"
         )
         self.input_language = input_language
         self.output_language = standardize_language_code(output_language)
@@ -46,7 +51,12 @@ class HuggingFaceTranslator(Translator):
 
     def predict(self, batch: list[OcrResult]):
         with torch.inference_mode():
-            results = self.pipeline([x.text for x in batch])
+            extra = (
+                {"src_lang": self.input_language, "tgt_lang": self.output_language}
+                if self._supports_lang_pair
+                else {}
+            )
+            results = self.pipeline([x.text for x in batch], **extra)
             return results
 
     async def translate(self, batch: list[OcrResult]):

@@ -89,9 +89,13 @@ IMPORTANT:
             )
 
             if response.output_parsed is not None:
-                for translation, i in zip(
-                    response.output_parsed.translations, to_translate_indices
-                ):
+                translations = response.output_parsed.translations
+                if len(translations) != len(to_translate_indices):
+                    raise RuntimeError(
+                        f"OpenAiTranslator: sent openai {len(to_translate_indices)} items "
+                        f"but got back {len(translations)} translations"
+                    )
+                for translation, i in zip(translations, to_translate_indices):
                     result[i].text = translation
             else:
                 raise RuntimeError("Openai Translation failed")

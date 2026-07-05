@@ -5,6 +5,7 @@ import langcodes
 import torch
 import numpy as np
 import pyphen
+from more_itertools import split_when
 from typing import Awaitable, Callable, Optional, ParamSpec, TypeVar, overload
 import largestinteriorrectangle as lir
 from PIL import Image, ImageFont
@@ -248,6 +249,14 @@ def has_white(image: np.ndarray):
     return cv2.countNonZero(white_pixels) > 0
 
 
+def natural_sort_key(value: str) -> list:
+    groups = split_when(value, lambda a, b: a.isdigit() != b.isdigit())
+    return [
+        int("".join(group)) if group[0].isdigit() else "".join(group).lower()
+        for group in groups
+    ]
+
+
 def wrap_text_pure(
     text: str,
     font: ImageFont.FreeTypeFont,
@@ -473,21 +482,21 @@ def find_best_font_size(
 
 
 def cv2_to_pil(img: np.ndarray) -> Image.Image:
-    return Image.fromarray(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+    return Image.fromarray(img)
 
 
 def pil_to_cv2(img: Image.Image) -> np.ndarray:
     arr = np.array(img)
 
     if len(arr.shape) > 2 and arr.shape[2] == 4:
-        return cv2.cvtColor(arr, cv2.COLOR_RGBA2BGR)
+        return cv2.cvtColor(arr, cv2.COLOR_RGBA2RGB)
 
-    return cv2.cvtColor(arr, cv2.COLOR_RGB2BGR)
+    return arr
 
 
 def ensure_gray(img: np.ndarray) -> np.ndarray:
     if len(img.shape) > 2:
-        return cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        return cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
     return img.copy()
 
 
