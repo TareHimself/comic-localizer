@@ -168,7 +168,7 @@ class PatchedAiCleaner(Cleaner):
 
                 frame_patch = frame[p1[1] : p2[1], p1[0] : p2[0]]
                 mask_patch_size = p2 - p1
-                mask_patch = np.ones(
+                mask_patch = np.zeros(
                     (mask_patch_size[1], mask_patch_size[0]), dtype=frame.dtype
                 )
                 cv2.fillPoly(
@@ -266,7 +266,7 @@ class PatchedAiCleaner(Cleaner):
                     np.array(list(reversed(frame.shape[:2]))),
                     np.array([0, 0]),
                 )
-                for frame, mask in zip(frames, masks)
+                for frame, mask in zip(ai_cleaned, masks)
             ]
 
         grouped_patches = self.group_patches(patches)

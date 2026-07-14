@@ -49,6 +49,39 @@ def test_extract_zip_returns_sorted_non_directory_entries(tmp_path):
     assert filenames == EXPECTED_ARCHIVE_FILENAMES
 
 
+def test_extract_zip_sorts_numeric_filenames_naturally(tmp_path):
+    """Plain lexicographic sort would scramble unpadded page numbers
+    (page1, page10, page2) -- natural sort must keep them in numeric order."""
+    archive = tmp_path / "sample.cbz"
+    with zipfile.ZipFile(archive, "w") as zf:
+        zf.writestr("page10.png", b"x")
+        zf.writestr("page1.png", b"y")
+        zf.writestr("page2.png", b"z")
+
+    out_dir = tmp_path / "extract"
+    out_dir.mkdir()
+
+    filenames = CbzPipeline.extract_zip(str(archive), str(out_dir))
+
+    assert filenames == ["page1.png", "page2.png", "page10.png"]
+
+
+def test_extract_zip_rejects_member_path_escaping_dest_dir(tmp_path):
+    """A malicious archive member path (zip-slip) must be rejected instead of
+    being extracted outside dest_dir."""
+    archive = tmp_path / "malicious.cbz"
+    with zipfile.ZipFile(archive, "w") as zf:
+        zf.writestr("../evil.png", b"x")
+
+    out_dir = tmp_path / "extract"
+    out_dir.mkdir()
+
+    with pytest.raises(ValueError):
+        CbzPipeline.extract_zip(str(archive), str(out_dir))
+
+    assert not (tmp_path / "evil.png").exists()
+
+
 @pytest.mark.asyncio
 async def test_cbz_pipeline_processes_in_batches_and_writes_outputs(
     tmp_path, monkeypatch

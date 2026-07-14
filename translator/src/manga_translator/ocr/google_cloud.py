@@ -26,7 +26,9 @@ class GoogleCloudOCR(OCR):
 
     @staticmethod
     def opencv_image_to_b64(image: np.ndarray):
-        success, encoded_bytes = cv2.imencode(".png", image)
+        success, encoded_bytes = cv2.imencode(
+            ".png", cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+        )
         if not success:
             raise RuntimeError("Failed to encode image")
 

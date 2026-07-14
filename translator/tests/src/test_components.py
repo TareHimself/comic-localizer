@@ -14,6 +14,7 @@ from manga_translator.drawing.horizontal import HorizontalDrawer
 from manga_translator.ocr.debug import DebugOCR
 from manga_translator.translation.debug import DebugTranslator
 from manga_translator.translation.pipe import PipeTranslator
+from manga_translator.utils import FontFitResult, WrapResult, WrappedLine
 
 
 WHITE_PIXEL = np.array([255, 255, 255], dtype=np.uint8)
@@ -146,6 +147,39 @@ def test_horizontal_drawer_draw_text_returns_empty_mask_when_fit_fails(monkeypat
 
     assert np.array_equal(drawn, frame)
     assert np.count_nonzero(mask) == 0
+
+
+def test_horizontal_drawer_draw_text_renders_requested_rgb_color(monkeypatch):
+    """Drawn text pixels must use the requested RGB color, not have red/blue swapped."""
+    from PIL import ImageFont
+
+    drawer = HorizontalDrawer()
+    frame = np.zeros((40, 40, 3), dtype=np.uint8)
+    translation = TranslatorResult(text="A", language="en")
+    red = np.array([255, 0, 0], dtype=np.uint8)
+    color = ColorDetectionResult(red, outline_size=0)
+
+    default_font = ImageFont.load_default(size=20)
+    fit_result = FontFitResult(
+        font_size=20,
+        wrap=WrapResult([WrappedLine(["A"], 0, height=20)], (20, 20)),
+    )
+
+    monkeypatch.setattr(
+        "manga_translator.drawing.horizontal.find_best_font_size",
+        lambda *a, **k: fit_result,
+    )
+    monkeypatch.setattr(
+        "manga_translator.drawing.horizontal.load_font",
+        lambda *a, **k: default_font,
+    )
+
+    drawn, mask = drawer.draw_text(frame, translation, color)
+
+    drawn_pixels = drawn[mask > 0]
+    assert len(drawn_pixels) > 0
+    # Requested color is pure red; red channel should dominate, not blue.
+    assert np.all(drawn_pixels[:, 0].astype(int) > drawn_pixels[:, 2].astype(int))
 
 
 @pytest.mark.asyncio

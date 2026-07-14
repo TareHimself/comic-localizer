@@ -1,5 +1,6 @@
 import asyncio
 import base64
+from typing import Optional
 import cv2
 import openai
 import numpy as np
@@ -53,7 +54,9 @@ Keep text concise.
 """
 
     def opencv_image_to_b64(self, image: np.ndarray):
-        success, encoded_bytes = cv2.imencode(".png", image)
+        success, encoded_bytes = cv2.imencode(
+            ".png", cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+        )
         if not success:
             raise RuntimeError("Failed to encode image")
 
@@ -91,12 +94,28 @@ Keep text concise.
             )
 
             if response.output_parsed is not None:
-                if len(images) != len(response.output_parsed.results):
+                parsed_results = response.output_parsed.results
+                if len(images) != len(parsed_results):
                     raise RuntimeError(
-                        f"OpenAiOCR: sent openai {len(images)} images but got back {len(response.output_parsed.results)} results"
+                        f"OpenAiOCR: sent openai {len(images)} images but got back {len(parsed_results)} results"
                     )
-                for x in response.output_parsed.results:
-                    results.append(OcrResult(text=x.text, language=x.language))
+
+                ordered: list[Optional[OcrResult]] = [None] * len(images)
+                seen_indices: set[int] = set()
+                for x in parsed_results:
+                    if (
+                        x.index < 0
+                        or x.index >= len(images)
+                        or x.index in seen_indices
+                    ):
+                        raise RuntimeError(
+                            f"OpenAiOCR: received invalid or duplicate result index {x.index} "
+                            f"for a batch of {len(images)} images"
+                        )
+                    seen_indices.add(x.index)
+                    ordered[x.index] = OcrResult(text=x.text, language=x.language)
+
+                results.extend(ordered)
             else:
                 raise RuntimeError("Openai OCR failed")
 

@@ -6,6 +6,7 @@ import asyncio
 import cv2
 from manga_translator.core.pipeline import Pipeline
 from manga_translator.pipelines.image_to_image import ImageToImagePipeline
+from manga_translator.utils import natural_sort_key
 
 
 class CbzPipeline(Pipeline):
@@ -25,13 +26,28 @@ class CbzPipeline(Pipeline):
         return await asyncio.to_thread(CbzPipeline.write_image_sync, file_path, image)
 
     @staticmethod
+    def _validate_member_path(dest_dir: str, filename: str) -> None:
+        dest_abs = os.path.abspath(dest_dir)
+        target_abs = os.path.abspath(os.path.join(dest_dir, filename))
+        if os.path.commonpath([dest_abs, target_abs]) != dest_abs:
+            raise ValueError(f"Unsafe path in archive member: {filename!r}")
+
+    @staticmethod
     def extract_zip(file_path: str, dest_dir: str) -> list[str]:
         with zipfile.ZipFile(file_path) as zf:
             # Only keep real files (not directory entries)
-            filenames = [zi.filename for zi in zf.infolist() if not zi.is_dir()]
-            # Optional: sort for deterministic order (zip order can be arbitrary)
-            filenames.sort()
-            zf.extractall(dest_dir)
+            infos = [zi for zi in zf.infolist() if not zi.is_dir()]
+
+            # Reject archives with member paths that would escape dest_dir
+            for zi in infos:
+                CbzPipeline._validate_member_path(dest_dir, zi.filename)
+
+            # Sort naturally for deterministic, numerically-correct page order
+            # (zip order can be arbitrary, and lexicographic sort would put
+            # page10.png before page2.png)
+            filenames = sorted((zi.filename for zi in infos), key=natural_sort_key)
+
+            zf.extractall(dest_dir, members=infos)
             return filenames
 
     async def __call__(

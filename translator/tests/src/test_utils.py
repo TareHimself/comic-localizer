@@ -101,11 +101,34 @@ def test_ensure_gray_converts_color_and_copies_grayscale():
     assert copied is not original
 
 
+def test_ensure_gray_uses_rgb_channel_order():
+    """ensure_gray must weight the R channel (not B) as the dominant luminance
+    contributor, since arrays flowing through the pipeline are RGB, not BGR."""
+    red = np.zeros((2, 2, 3), dtype=np.uint8)
+    red[..., 0] = 255  # pure red in RGB order
+
+    gray = utils.ensure_gray(red)
+
+    # cv2.COLOR_RGB2GRAY weights: 0.299*R + 0.587*G + 0.114*B -> ~76 for pure red.
+    # The old (buggy) COLOR_BGR2GRAY misreads this as pure blue -> ~29.
+    assert gray[0, 0] == pytest.approx(76, abs=1)
+
+
 def test_compute_draw_bbox_returns_full_when_no_contours():
     """When no bright contour exists, draw bbox should default to full section bounds."""
     section = np.zeros((8, 10, 3), dtype=np.uint8)
     bbox = utils.compute_draw_bbox(section)
     assert np.array_equal(bbox, np.array([0, 0, 10, 8], dtype=np.int32))
+
+
+def test_natural_sort_key_orders_numeric_suffixes_numerically():
+    """Plain string sort would put page10 before page2; natural sort must not."""
+    names = ["page10.png", "page1.png", "page2.png"]
+    assert sorted(names, key=utils.natural_sort_key) == [
+        "page1.png",
+        "page2.png",
+        "page10.png",
+    ]
 
 
 def test_has_white_detects_white_pixels_presence():
