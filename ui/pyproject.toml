@@ -6,7 +6,7 @@ requires-python = ">=3.12"
 dependencies = [
     "blacksheep>=2.4.5",
     "dataclass-wizard>=0.39.1",
-    "manga-translator",
+    "comic-localizer",
     "poethepoet>=0.39.0",
     "python-dotenv>=1.2.1",
     "uvicorn>=0.40.0",
@@ -25,7 +25,7 @@ torch = [
 torchvision = [
   { index = "pytorch-cu128", marker = "sys_platform == 'linux' or sys_platform == 'win32'" },
 ]
-manga-translator = { path = "../translator", editable = true }
+comic-localizer = { path = "../translator", editable = true }
 
 [tool.poe.tasks.start]
 help = "run the server using uvicorn"

@@ -1,9 +1,7 @@
-# Manga Translator
-
-<img src="assets\examples\ui_2025-12-27.png"/>
+# Comic Localizer
 
 ## What
-Extensible manga translator
+Extensible comic localizer
 
 ## Install
 - This repo uses [uv](https://github.com/astral-sh/uv) for package management, see individual parts below for specifics
@@ -42,84 +40,6 @@ Links are currently down, and I'm not sure when I will be able to bring them bac
     <img src="https://app.roboflow.com/images/download-dataset-badge.svg"></img>
 </a>
 -->
-##  Examples
-Image used solely for demonstrating translation functionality. All rights belong to the original copyright holder
-<table>
-   <thead>
-      <tr>
-         <th align="center" width="50%">Original</th>
-         <th align="center" width="50%">Translated</th>
-      </tr>
-   </thead>
-   <tbody>
-      <tr>
-         <td align="center" width="50%">
-            <img alt="Original" src="assets/examples/jujutsu_kaisen.png" width="100%"/>
-         </td>
-         <td align="center" width="50%">
-            <img alt="Result" src="assets/examples/jujutsu_kaisen_converted.png" width="100%"/>
-         </td>
-      </tr>
-      <tr>
-         <td colspan=2 align="center">Japanese => English</br>Jujutsu Kaisen</td>
-      </tr>
-      <tr>
-         <td align="center" width="50%">
-            <img alt="Original" src="assets/examples/solo_leveling.png" width="100%"/>
-         </td>
-         <td align="center" width="50%">
-            <img alt="Result" src="assets/examples/solo_leveling_converted.png" width="100%"/>
-         </td>
-      </tr>
-      <tr>
-         <td colspan=2 align="center">Japanese => "Meow"</br>Solo Leveling</td>
-      </tr>
-      <tr>
-         <td align="center" width="50%">
-            <img alt="Original" src="assets/examples/the_rising_of_the_sheild_hero.jpg" width="100%"/>
-         </td>
-         <td align="center" width="50%">
-            <img alt="Result" src="assets/examples/the_rising_of_the_sheild_hero_converted.jpg" width="100%"/>
-         </td>
-      </tr>
-      <tr>
-         <td colspan=2 align="center">Japanese => Clean</br>The Rising of the Shield Hero</td>
-      </tr>
-      <tr>
-         <td align="center" width="50%">
-            <img alt="Original" src="assets/examples/ja_a_certain_scientific_accelerator.png" width="100%"/>
-         </td>
-         <td align="center" width="50%">
-            <img alt="Result" src="assets/examples/ja_a_certain_scientific_accelerator_converted.png" width="100%"/>
-         </td>
-      </tr>
-      <tr>
-         <td colspan=2 align="center">Japanese => English</br>A Certain Scientific Accelerator</td>
-      </tr>
-      <tr>
-         <td align="center" width="50%">
-            <img alt="Original" src="assets/examples/ja_one_punch_man.jpg" width="100%"/>
-         </td>
-         <td align="center" width="50%">
-            <img alt="Result" src="assets/examples/ja_one_punch_man_converted.jpg" width="100%" />
-         </td>
-      </tr>
-      <tr>
-         <td colspan=2 align="center">Japanese => English</br>One Punch Man</td>
-      </tr>
-      <tr>
-         <td align="center" width="50%">
-            <img alt="Original" src="assets/examples/ja_oshi_no_ko.png" width="100%"/>
-         </td>
-         <td align="center" width="50%">
-            <img alt="Result" src="assets/examples/ja_oshi_no_ko_converted.png" width="100%"/>
-         </td>
-      </tr>
-      <tr>
-         <td colspan=2 align="center">Japanese => English</br>Oshi No Ko</td>
-      </tr>
-   </tbody>
-</table>
 <!-- 
 ## Glossary
 

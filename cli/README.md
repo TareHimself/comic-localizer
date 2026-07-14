@@ -1,5 +1,5 @@
 # CLI
-This is a basic cli example using the manga translator, it uses yaml files for configuration ,see [example_config.yaml](./example_config.yaml).
+This is a basic cli example using the comic localizer, it uses yaml files for configuration ,see [example_config.yaml](./example_config.yaml).
 
 ## Install
 ```bash

@@ -3,18 +3,18 @@
 import numpy as np
 import pytest
 
-from manga_translator.cleaning.all_white_cleaner import AllWhiteCleaner
-from manga_translator.cleaning.opencv import OpenCvCleaner
-from manga_translator.core.plugin import (
+from comic_localizer.cleaning.all_white_cleaner import AllWhiteCleaner
+from comic_localizer.cleaning.opencv import OpenCvCleaner
+from comic_localizer.core.plugin import (
     ColorDetectionResult,
     OcrResult,
     TranslatorResult,
 )
-from manga_translator.drawing.horizontal import HorizontalDrawer
-from manga_translator.ocr.debug import DebugOCR
-from manga_translator.translation.debug import DebugTranslator
-from manga_translator.translation.pipe import PipeTranslator
-from manga_translator.utils import FontFitResult, WrapResult, WrappedLine
+from comic_localizer.drawing.horizontal import HorizontalDrawer
+from comic_localizer.ocr.debug import DebugOCR
+from comic_localizer.translation.debug import DebugTranslator
+from comic_localizer.translation.pipe import PipeTranslator
+from comic_localizer.utils import FontFitResult, WrapResult, WrappedLine
 
 
 WHITE_PIXEL = np.array([255, 255, 255], dtype=np.uint8)
@@ -140,7 +140,7 @@ def test_horizontal_drawer_draw_text_returns_empty_mask_when_fit_fails(monkeypat
     color = ColorDetectionResult(np.array([255, 255, 255], dtype=np.uint8))
 
     monkeypatch.setattr(
-        "manga_translator.drawing.horizontal.find_best_font_size", lambda *a, **k: None
+        "comic_localizer.drawing.horizontal.find_best_font_size", lambda *a, **k: None
     )
 
     drawn, mask = drawer.draw_text(frame, translation, color)
@@ -166,11 +166,11 @@ def test_horizontal_drawer_draw_text_renders_requested_rgb_color(monkeypatch):
     )
 
     monkeypatch.setattr(
-        "manga_translator.drawing.horizontal.find_best_font_size",
+        "comic_localizer.drawing.horizontal.find_best_font_size",
         lambda *a, **k: fit_result,
     )
     monkeypatch.setattr(
-        "manga_translator.drawing.horizontal.load_font",
+        "comic_localizer.drawing.horizontal.load_font",
         lambda *a, **k: default_font,
     )
 

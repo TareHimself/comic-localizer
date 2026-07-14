@@ -4,8 +4,8 @@ import numpy as np
 import pytest
 import torch
 
-from manga_translator.core.constants import DetectionType, SegmentationType
-from manga_translator.core.plugin import (
+from comic_localizer.core.constants import DetectionType, SegmentationType
+from comic_localizer.core.plugin import (
     BasePlugin,
     BooleanPluginArgument,
     Cleaner,

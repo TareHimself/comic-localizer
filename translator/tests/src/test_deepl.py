@@ -1,6 +1,6 @@
 """Tests for DeepLTranslator target_lang handling."""
 
-from manga_translator.translation.deepl import DeepLTranslator, _to_deepl_target_lang
+from comic_localizer.translation.deepl import DeepLTranslator, _to_deepl_target_lang
 
 
 def test_to_deepl_target_lang_maps_bare_english_to_region_qualified():

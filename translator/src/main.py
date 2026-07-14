@@ -1,11 +1,11 @@
-from manga_translator.pipelines.image_to_image import ImageToImagePipeline
-from manga_translator.core.plugin import ColorDetector
-from manga_translator.cleaning.opencv import OpenCvCleaner
-from manga_translator.detection.yolo import YoloDetector
-from manga_translator.segmentation.yolo import YoloSegmenter
-from manga_translator.translation.deepl import DeepLTranslator
-from manga_translator.ocr.manga_ocr import MangaOCR
-from manga_translator.drawing.horizontal import HorizontalDrawer
+from comic_localizer.pipelines.image_to_image import ImageToImagePipeline
+from comic_localizer.core.plugin import ColorDetector
+from comic_localizer.cleaning.opencv import OpenCvCleaner
+from comic_localizer.detection.yolo import YoloDetector
+from comic_localizer.segmentation.yolo import YoloSegmenter
+from comic_localizer.translation.deepl import DeepLTranslator
+from comic_localizer.ocr.manga_ocr import MangaOCR
+from comic_localizer.drawing.horizontal import HorizontalDrawer
 import asyncio
 import cv2
 import torch

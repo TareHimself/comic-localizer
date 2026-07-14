@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 import torch
 
-from manga_translator import utils
+from comic_localizer import utils
 
 
 WHITE_PIXEL = np.array([255, 255, 255], dtype=np.uint8)

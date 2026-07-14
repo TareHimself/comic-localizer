@@ -23,15 +23,15 @@ from blacksheep import (
     json,
     FromForm,
 )
-from manga_translator.utils import pil_to_cv2
-from manga_translator.pipelines.image_to_image import ImageToImagePipeline
-from manga_translator.get import construct_plugin_by_name
-from manga_translator.translation.get import get_translators
-from manga_translator.ocr.get import get_ocrs
-from manga_translator.drawing.get import get_drawers
-from manga_translator.detection.get import get_detectors
-from manga_translator.segmentation.get import get_segmenters
-from manga_translator.cleaning.get import get_cleaners
+from comic_localizer.utils import pil_to_cv2
+from comic_localizer.pipelines.image_to_image import ImageToImagePipeline
+from comic_localizer.get import construct_plugin_by_name
+from comic_localizer.translation.get import get_translators
+from comic_localizer.ocr.get import get_ocrs
+from comic_localizer.drawing.get import get_drawers
+from comic_localizer.detection.get import get_detectors
+from comic_localizer.segmentation.get import get_segmenters
+from comic_localizer.cleaning.get import get_cleaners
 from dataclass_wizard import JSONWizard
 from typing import Any
 

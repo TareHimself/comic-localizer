@@ -2,7 +2,7 @@ import argparse
 import asyncio
 import os
 import cv2
-from manga_translator.get import construct_image_to_image_pipeline_from_config
+from comic_localizer.get import construct_image_to_image_pipeline_from_config
 
 
 class SmartFormatter(argparse.HelpFormatter):
@@ -29,8 +29,8 @@ def write_image(source_path, destination, image):
 
 async def main():
     parser = argparse.ArgumentParser(
-        prog="Manga Translator",
-        description="Translates Manga Pages",
+        prog="Comic Localizer",
+        description="Translates Comic Pages",
         formatter_class=SmartFormatter,
         exit_on_error=True,
     )

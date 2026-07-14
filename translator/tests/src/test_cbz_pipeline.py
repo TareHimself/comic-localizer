@@ -6,7 +6,7 @@ import zipfile
 import numpy as np
 import pytest
 
-from manga_translator.pipelines.cbz import CbzPipeline
+from comic_localizer.pipelines.cbz import CbzPipeline
 
 
 TEST_IMAGE_SHAPE = (2, 2, 3)

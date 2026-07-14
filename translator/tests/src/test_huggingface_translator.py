@@ -9,8 +9,8 @@ from types import SimpleNamespace
 
 import torch
 
-from manga_translator.translation import huggingface as huggingface_module
-from manga_translator.core.plugin import OcrResult
+from comic_localizer.translation import huggingface as huggingface_module
+from comic_localizer.core.plugin import OcrResult
 
 
 class _FakeTokenizerWithLangPair:

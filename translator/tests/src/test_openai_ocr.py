@@ -7,7 +7,7 @@ import cv2
 import numpy as np
 import pytest
 
-from manga_translator.ocr.openai import OpenAiOCR
+from comic_localizer.ocr.openai import OpenAiOCR
 
 
 def _make_ocr() -> OpenAiOCR:

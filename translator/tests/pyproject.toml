@@ -11,7 +11,7 @@ dependencies = [
 [dependency-groups]
 dev = [
     "coverage>=7.13.5",
-    "manga-translator",
+    "comic-localizer",
     "poethepoet>=0.31.1",
     "pytest>=9.0.2",
     "pytest-asyncio>=1.3.0",
@@ -22,7 +22,7 @@ test = "pytest src/"
 coverage = "uv run coverage run -m pytest"
 
 [tool.uv.sources]
-manga-translator = { path = "..", editable = true }
+comic-localizer = { path = "..", editable = true }
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"

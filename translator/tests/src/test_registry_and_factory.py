@@ -4,14 +4,14 @@ import yaml
 import pytest
 import inspect
 
-from manga_translator.cleaning.all_white_cleaner import AllWhiteCleaner
-from manga_translator.get import (
+from comic_localizer.cleaning.all_white_cleaner import AllWhiteCleaner
+from comic_localizer.get import (
     construct_image_to_image_pipeline_from_config,
     construct_plugin_by_name,
     get_all,
 )
-from manga_translator.ocr.debug import DebugOCR
-from manga_translator.translation.pipe import PipeTranslator
+from comic_localizer.ocr.debug import DebugOCR
+from comic_localizer.translation.pipe import PipeTranslator
 
 
 DEBUG_OCR_TEXT = "detected text"

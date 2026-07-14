@@ -3,7 +3,7 @@
 import cv2
 import numpy as np
 
-from manga_translator.ocr.google_cloud import GoogleCloudOCR
+from comic_localizer.ocr.google_cloud import GoogleCloudOCR
 
 
 def test_opencv_image_to_b64_preserves_rgb_color_order():

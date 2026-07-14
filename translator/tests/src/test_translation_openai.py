@@ -4,8 +4,8 @@ from types import SimpleNamespace
 
 import pytest
 
-from manga_translator.core.plugin import OcrResult
-from manga_translator.translation.openai import OpenAiTranslator
+from comic_localizer.core.plugin import OcrResult
+from comic_localizer.translation.openai import OpenAiTranslator
 
 
 def _make_translator() -> OpenAiTranslator:

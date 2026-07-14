@@ -3,8 +3,8 @@
 import numpy as np
 import pytest
 
-from manga_translator.core.constants import DetectionType
-from manga_translator.core.plugin import (
+from comic_localizer.core.constants import DetectionType
+from comic_localizer.core.plugin import (
     Cleaner,
     ColorDetectionResult,
     ColorDetector,
@@ -17,8 +17,8 @@ from manga_translator.core.plugin import (
     Translator,
     TranslatorResult,
 )
-from manga_translator.pipelines.image_to_image import ImageToImagePipeline
-from manga_translator.pipelines.image_to_image import FrameSection
+from comic_localizer.pipelines.image_to_image import ImageToImagePipeline
+from comic_localizer.pipelines.image_to_image import FrameSection
 
 
 BLACK_PIXEL = np.array([0, 0, 0], dtype=np.uint8)

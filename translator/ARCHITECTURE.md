@@ -1,6 +1,6 @@
 # Translator Architecture
 
-This document describes the architecture of `translator/src/manga_translator`: a
+This document describes the architecture of `translator/src/comic_localizer`: a
 plugin-based, config-driven pipeline for detecting, cleaning, translating, and
 redrawing text in manga/comic images.
 
@@ -24,7 +24,7 @@ YAML config file via `construct_image_to_image_pipeline_from_config` in
 ## Package layout
 
 ```
-src/manga_translator/
+src/comic_localizer/
 ├── core/            # Plugin base classes, argument/config system, shared types
 ├── detection/        # Detector plugins (find text bubble/free-text boxes)
 ├── segmentation/      # Segmenter plugins (precise per-glyph polygons)

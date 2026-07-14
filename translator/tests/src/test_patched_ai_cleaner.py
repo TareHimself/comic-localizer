@@ -4,9 +4,9 @@ import numpy as np
 import pytest
 import torch
 
-from manga_translator.cleaning.patched_ai_cleaner import PatchedAiCleaner
-from manga_translator.core.constants import DetectionType, SegmentationType
-from manga_translator.core.plugin import DetectionResult, SegmentationResult
+from comic_localizer.cleaning.patched_ai_cleaner import PatchedAiCleaner
+from comic_localizer.core.constants import DetectionType, SegmentationType
+from comic_localizer.core.plugin import DetectionResult, SegmentationResult
 
 
 class _ConstantInpaintModel:
