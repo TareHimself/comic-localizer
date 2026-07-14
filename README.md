@@ -7,7 +7,7 @@ Extensible comic localizer
 - This repo uses [uv](https://github.com/astral-sh/uv) for package management, see individual parts below for specifics
   
 ## Parts
-- [Actual Translator](./translator/README.md)
+- [Actual Translator](./localizer/README.md)
 - A [UI](./ui/README.md) for translating individual images
 - A basic [CLI](./cli/README.md) example
   

@@ -179,7 +179,7 @@ wheels = [
 [[package]]
 name = "comic-localizer"
 version = "0.1.0"
-source = { editable = "../translator" }
+source = { editable = "../localizer" }
 dependencies = [
     { name = "accelerate" },
     { name = "deepl" },
@@ -2451,7 +2451,7 @@ dependencies = [
 [package.metadata]
 requires-dist = [
     { name = "blacksheep", specifier = ">=2.4.5" },
-    { name = "comic-localizer", editable = "../translator" },
+    { name = "comic-localizer", editable = "../localizer" },
     { name = "dataclass-wizard", specifier = ">=0.39.1" },
     { name = "poethepoet", specifier = ">=0.39.0" },
     { name = "python-dotenv", specifier = ">=1.2.1" },

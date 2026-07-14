@@ -1,4 +1,4 @@
-name: Translator Unit Tests
+name: Localizer Unit Tests
 
 on:
   push:
@@ -8,15 +8,15 @@ on:
     branches:
       - "master"
     paths:
-      - "translator/**"
-      - ".github/workflows/translator-tests-ci.yml"
+      - "localizer/**"
+      - ".github/workflows/localizer-tests-ci.yml"
 
 jobs:
   test:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: translator/tests
+        working-directory: localizer/tests
 
     steps:
       - name: Check out repository

@@ -14,13 +14,13 @@
             "args": ["-f","${input:folder}"],
         },
          {
-            "name": "Debug Translator",
+            "name": "Debug Localizer",
             "type": "debugpy",
             "request": "launch",
-            "program": "${workspaceFolder}/translator/src/main.py",
+            "program": "${workspaceFolder}/localizer/src/main.py",
             "console": "integratedTerminal",
             "justMyCode": true,
-            "cwd": "${workspaceFolder}/translator"
+            "cwd": "${workspaceFolder}/localizer"
         },
         {
             "name": "Debug Color Detection Train",

@@ -124,7 +124,7 @@ dependencies = [
 ]
 
 [package.metadata]
-requires-dist = [{ name = "comic-localizer", editable = "../translator" }]
+requires-dist = [{ name = "comic-localizer", editable = "../localizer" }]
 
 [[package]]
 name = "click"
@@ -150,7 +150,7 @@ wheels = [
 [[package]]
 name = "comic-localizer"
 version = "0.1.0"
-source = { editable = "../translator" }
+source = { editable = "../localizer" }
 dependencies = [
     { name = "accelerate" },
     { name = "deepl" },

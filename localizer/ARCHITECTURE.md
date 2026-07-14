@@ -1,6 +1,6 @@
 # Translator Architecture
 
-This document describes the architecture of `translator/src/comic_localizer`: a
+This document describes the architecture of `localizer/src/comic_localizer`: a
 plugin-based, config-driven pipeline for detecting, cleaning, translating, and
 redrawing text in manga/comic images.
 
@@ -201,8 +201,8 @@ Notes on the diagram:
 
 ## Testing
 
-Unit/integration tests live in `translator/tests/src/`, one file roughly per
+Unit/integration tests live in `localizer/tests/src/`, one file roughly per
 module (e.g. `test_cbz_pipeline.py`, `test_patched_ai_cleaner.py`,
 `test_components.py` for OCR/translation/cleaning/drawing plugin behavior).
-Run them with `pytest` from `translator/tests/` (a separate `uv`-managed venv
-from the main `translator/` package).
+Run them with `pytest` from `localizer/tests/` (a separate `uv`-managed venv
+from the main `localizer/` package).
